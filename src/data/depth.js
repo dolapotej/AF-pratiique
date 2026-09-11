@@ -1,0 +1,323 @@
+// Original teaching sequences. These are not textbook transcriptions.
+// Each exercise is [instruction, accepted answers, explanation, type].
+export const sequence = ['alphabet', 'introductions', 'pronouns', 'countries', 'professions', 'feelings', 'classroom', 'articles', 'negation', 'numbers', 'calendar', 'preferences', 'town', 'outings', 'messages', 'francophonie']
+export const depth = {
+  alphabet: {
+    objectives: ['Épeler un nom et demander une répétition.', 'Distinguer lettres, accents et quelques sons fréquents.', 'Lire des mots nouveaux avec des repères écrits.'],
+    sections: [
+      ['Une lettre et un son', 'Le nom d’une lettre sert à épeler ; il ne donne pas toujours son son dans un mot. Dans « café », c se lit comme k ; dans « cinéma », c se lit comme s. Devant a, o, u, ç permet de garder le son s : ça, garçon, reçu.', ['C comme dans café ; ç comme dans français.', 'Garde l’accent lorsque tu épelles : L – É – A.']],
+      ['Les signes à reconnaître', 'É porte un accent aigu ; è porte un accent grave ; ê porte un accent circonflexe. Le tréma sépare des voyelles dans certains mots : Noël. Les accents font partie de l’orthographe, même sur les majuscules.', ['École ; très ; fête ; Noël.', 'À est une préposition ; a est une forme du verbe avoir.']],
+      ['Observer avant de lire', 'Des lettres peuvent former un seul son : ou dans vous, ch dans chat, on dans bonjour. Beaucoup de consonnes finales ne se prononcent pas, mais ce n’est pas une règle absolue : le t de salut est muet, celui de sept se prononce quand on compte.', ['Vous : repère le groupe ou.', 'Demande : « Vous pouvez répéter plus lentement ? »']],
+    ],
+    dialogue: ['— Votre prénom, s’il vous plaît ?', '— Léa.', '— Vous pouvez épeler ?', '— L, E accent aigu, A.', '— Merci, Léa.'],
+    extraCards: [['Un accent circonflexe', 'A circumflex accent', 'Fête contient ê.'], ['Un tréma', 'A diaeresis', 'Noël contient ë.'], ['Plus lentement', 'More slowly', 'Parlez plus lentement, s’il vous plaît.'], ['Vous pouvez répéter ?', 'Can you repeat?', 'Excusez-moi, vous pouvez répéter ?']],
+    exercises: [
+      ['Complète avec la lettre accentuée : caf_.', ['é'], 'Café s’écrit avec un accent aigu.', 'fill'],
+      ['Complète : fran_ais.', ['ç'], 'La cédille donne le son s devant a.', 'fill'],
+      ['Remets dans l’ordre : pouvez / Vous / répéter', ['Vous pouvez répéter'], 'Dans une question avec intonation, garde sujet + verbe.', 'order'],
+      ['Corrige les accents : Noel.', ['Noël'], 'Le tréma porte sur le e de Noël.', 'rewrite'],
+    ],
+    application: ['Dans le dialogue, quelle lettre porte un accent ?', ['L', 'E', 'A'], 'E', 'Léa dit « E accent aigu » : son prénom contient É.'],
+    challenge: 'Un partenaire dicte trois prénoms. Note-les, demande une répétition, puis épelle-les pour vérifier.',
+  },
+  introductions: {
+    objectives: ['Ouvrir et terminer un échange.', 'Donner son nom avec s’appeler.', 'Choisir tu ou vous selon la situation.'],
+    sections: [
+      ['Choisir une salutation', 'Bonjour convient dans la journée ; bonsoir convient le soir. Salut est familier et s’utilise entre proches, à l’arrivée ou au départ. Au revoir convient dans une situation polie. Bonne journée et bonne soirée souhaitent une suite agréable au moment de partir.', ['Bonjour Madame. Au revoir !', 'Salut Nina ! À bientôt !']],
+      ['Donner son nom', 'S’appeler change avec le sujet : je m’appelle, tu t’appelles, il/elle s’appelle, nous nous appelons, vous vous appelez, ils/elles s’appellent. Le petit pronom devant le verbe est nécessaire. Pour une présentation simple, commence par « Je m’appelle… ».', ['Je m’appelle Ada. Elle s’appelle Léa.', 'Comment vous appelez-vous ? — Je m’appelle Karim.']],
+      ['Construire un échange', 'Après ton nom, ajoute une information, puis pose une question à l’autre personne. Utilise « Et toi ? » avec tu et « Et vous ? » avec vous. Enchanté ou enchantée exprime le plaisir de rencontrer une personne ; la forme écrite dépend de la personne qui parle.', ['Je suis étudiant. Et vous ?', 'Enchantée, je m’appelle Nina.']],
+    ],
+    dialogue: ['— Bonjour, je m’appelle Ada. Et vous ?', '— Je m’appelle Paul. Enchanté.', '— Enchantée. Vous êtes étudiant ?', '— Oui, je suis étudiant. À bientôt !'],
+    extraCards: [['Bonsoir', 'Good evening', 'Bonsoir Madame.'], ['Au revoir', 'Goodbye', 'Au revoir, à demain !'], ['Et vous ?', 'And you? (polite)', 'Je suis étudiant. Et vous ?'], ['À bientôt', 'See you soon', 'Merci, à bientôt !'], ['Bonne journée', 'Have a good day', 'Au revoir, bonne journée !']],
+    exercises: [
+      ['Complète : Je ___ appelle Ada.', ['m’', "m'"], 'Le pronom me devient m’ devant appelle.', 'fill'],
+      ['Complète : Vous vous ___ Paul.', ['appelez'], 'Avec vous : vous vous appelez.', 'fill'],
+      ['Remets dans l’ordre : appelle / Nina / Je / m’', ['Je m’appelle Nina'], 'Je + m’appelle + prénom.', 'order'],
+      ['Réécris avec tu : Comment vous appelez-vous ?', ['Comment t’appelles-tu ?', 'Comment tu t’appelles ?'], 'Avec tu, utilise t’appelles. Les deux ordres proposés forment une question.', 'rewrite'],
+    ],
+    application: ['Ada rencontre Paul pour la première fois. Quelle formule reprend le dialogue ?', ['Et vous ?', 'Et tes ?', 'Et nous sommes ?'], 'Et vous ?', 'Et vous ? renvoie poliment la question à Paul.'],
+    challenge: 'Joue deux rencontres : un nouveau camarade puis un professeur. Change les salutations et les pronoms.',
+  },
+  pronouns: {
+    objectives: ['Remplacer un groupe nominal par un pronom.', 'Conjuguer être au présent.', 'Accorder un adjectif avec le sujet.'],
+    sections: [
+      ['Identifier le sujet', 'Je désigne la personne qui parle ; tu, celle à qui elle parle. Il et elle remplacent un nom singulier. Nous inclut la personne qui parle. Vous désigne plusieurs personnes ou une seule personne à qui l’on parle poliment.', ['Ada → elle ; Paul → il.', 'Ada et moi → nous ; Paul et toi → vous.']],
+      ['Mémoriser les six formes', 'Être est irrégulier : il faut apprendre ses formes. Je suis, tu es, il/elle/on est, nous sommes, vous êtes, ils/elles sont. On prend une forme verbale singulière même lorsqu’il signifie nous.', ['On est en classe. Nous sommes en classe.', 'Vous êtes professeur, Madame ?']],
+      ['Relier sujet, verbe et adjectif', 'Elles remplace un groupe féminin. Ils remplace un groupe masculin ou mixte. L’adjectif après être s’accorde avec les personnes décrites. Le verbe ne change pas selon le genre : il est et elle est.', ['Léa et Nina sont contentes. Elles sont contentes.', 'Paul et Ada sont contents. Ils sont contents.']],
+    ],
+    dialogue: ['— Nina et Léa sont ici ?', '— Oui, elles sont en classe.', '— Et Paul ?', '— Il est à la bibliothèque. Nous sommes trois aujourd’hui.'],
+    extraCards: [['Je suis', 'I am', 'Je suis ici.'], ['Tu es', 'You are (informal singular)', 'Tu es en classe.'], ['On est', 'We are / one is', 'On est ensemble.'], ['Elles sont contentes', 'They are happy (feminine)', 'Nina et Léa sont contentes.']],
+    exercises: [
+      ['Complète : Ada et moi, nous ___ ici.', ['sommes'], 'Ada et moi correspond à nous : nous sommes.', 'fill'],
+      ['Remplace Nina et Léa : ___ sont en classe.', ['Elles'], 'Deux personnes féminines : elles.', 'fill'],
+      ['Remets dans l’ordre : êtes / Vous / professeur', ['Vous êtes professeur'], 'Le sujet vous précède êtes.', 'order'],
+      ['Corrige : On sommes ici.', ['On est ici'], 'On se conjugue comme il et elle : est.', 'rewrite'],
+    ],
+    application: ['Dans le dialogue, « elles » remplace…', ['Nina et Léa', 'Paul', 'la bibliothèque'], 'Nina et Léa', 'Elles reprend les deux personnes féminines nommées dans la question.'],
+    challenge: 'Décris cinq personnes d’une classe imaginaire en changeant le pronom à chaque phrase.',
+  },
+  countries: {
+    objectives: ['Distinguer pays et nationalité.', 'Accorder des nationalités fréquentes.', 'Dire où l’on habite et d’où l’on vient.'],
+    sections: [
+      ['Pays ou adjectif ?', 'Le pays est un nom : la France, le Nigeria, le Canada. La nationalité décrit une personne : français, nigérian, canadien. Après être, emploie l’adjectif ; après habiter, indique un lieu.', ['Elle est française. Elle habite en France.', 'Il est nigérian. Il habite au Nigeria.']],
+      ['Observer les changements', 'On ajoute souvent e au féminin : nigérian/nigériane, sénégalais/sénégalaise. Certaines formes changent davantage : canadien/canadienne. Un adjectif déjà terminé par e peut rester identique : belge. Au pluriel, ajoute généralement s.', ['Il est canadien. Elle est canadienne.', 'Elles sont nigérianes. Ils sont sénégalais.']],
+      ['Utiliser les prépositions', 'Avec habiter, utilise à devant une ville, en devant un pays féminin ou commençant par une voyelle, au devant un pays masculin commençant par une consonne et aux devant un pays pluriel. Apprends le pays avec son article.', ['À Lagos ; en France ; en Iran ; au Canada ; aux États-Unis.', 'Je viens de France. Je viens du Nigeria.']],
+    ],
+    dialogue: ['— Tu es française, Ada ?', '— Non, je suis nigériane. J’habite à Lagos.', '— Et Marc ?', '— Il est canadien, mais il habite en France.'],
+    extraCards: [['Canadien / canadienne', 'Canadian', 'Marc est canadien.'], ['Sénégalais / sénégalaise', 'Senegalese', 'Awa est sénégalaise.'], ['Belge', 'Belgian', 'Elle est belge.'], ['J’habite à Lagos', 'I live in Lagos', 'Je suis nigériane et j’habite à Lagos.']],
+    exercises: [
+      ['Complète : Nina est ___ . (canadien au féminin)', ['canadienne'], 'Canadien devient canadienne : double n puis e.', 'fill'],
+      ['Complète : J’habite ___ Canada.', ['au'], 'Le Canada est masculin et commence par une consonne : au Canada.', 'fill'],
+      ['Remets dans l’ordre : nigérianes / Elles / sont', ['Elles sont nigérianes'], 'La nationalité s’accorde au féminin pluriel.', 'order'],
+      ['Corrige : Il est France.', ['Il est français'], 'Après être pour une nationalité, utilise français, pas le nom France.', 'rewrite'],
+    ],
+    application: ['Marc habite en France. Quelle est sa nationalité dans le dialogue ?', ['Française', 'Canadienne', 'Nigériane'], 'Canadienne', 'Son lieu de résidence ne change pas sa nationalité : il est canadien.'],
+    challenge: 'Présente trois personnes avec une nationalité et un lieu de résidence différents. Ton partenaire retrouve chaque pays.',
+  },
+  professions: {
+    objectives: ['Décrire une profession ou des études.', 'Choisir être ou travailler.', 'Distinguer il est et c’est.'],
+    sections: [
+      ['Nommer le métier', 'Après être, une profession simple s’emploie sans article : elle est médecin. Pour identifier une personne avec c’est, ajoute un article : c’est une médecin. Les deux constructions sont utiles mais ne se mélangent pas.', ['Il est professeur. C’est un professeur.', 'Elle est étudiante. C’est une étudiante.']],
+      ['Apprendre les formes', 'Certains métiers ont deux formes : acteur/actrice, serveur/serveuse, infirmier/infirmière. D’autres gardent la même forme : médecin. Apprends les formes avec des phrases complètes plutôt qu’une terminaison unique.', ['Paul est acteur. Nina est actrice.', 'Elle est infirmière. Il est infirmier.']],
+      ['Ajouter un lieu ou un domaine', 'Être donne la profession ; travailler précise l’activité ou le lieu ; étudier donne les études. Avec je et tu : je travaille, tu travailles ; j’étudie, tu étudies. À précède une ville ; dans peut introduire le lieu de travail.', ['Je travaille à Lagos, dans une école.', 'J’étudie le français. Je suis étudiant.']],
+    ],
+    dialogue: ['— Quelle est ta profession ?', '— Je suis infirmière. Je travaille dans un hôpital.', '— Ton frère est infirmier aussi ?', '— Non, il est étudiant. Il étudie le français.'],
+    extraCards: [['Un acteur / une actrice', 'An actor / actress', 'Nina est actrice.'], ['Un infirmier / une infirmière', 'A nurse', 'Elle est infirmière.'], ['Un serveur / une serveuse', 'A waiter / waitress', 'Il est serveur.'], ['J’étudie le français', 'I study French', 'Je suis étudiante et j’étudie le français.']],
+    exercises: [
+      ['Complète : C’est ___ professeur. (masculin)', ['un'], 'C’est + un + profession identifie une personne.', 'fill'],
+      ['Complète : Elle est ___ . (acteur au féminin)', ['actrice'], 'Le féminin de acteur est actrice.', 'fill'],
+      ['Remets dans l’ordre : dans / travaille / Je / une école', ['Je travaille dans une école'], 'Je travaille indique l’activité ; dans une école précise le lieu.', 'order'],
+      ['Corrige la présentation simple : Je suis un étudiant.', ['Je suis étudiant'], 'Pour donner simplement ta profession ou ton statut après être, enlève l’article.', 'rewrite'],
+    ],
+    application: ['Que fait le frère dans le dialogue ?', ['Il étudie le français.', 'Il est infirmier.', 'Il travaille dans un hôpital.'], 'Il étudie le français.', 'La personne distingue son travail à l’hôpital des études de son frère.'],
+    challenge: 'Fais une mini-interview : profession, lieu de travail, études. Présente ensuite les réponses de ton partenaire.',
+  },
+  feelings: {
+    objectives: ['Demander des nouvelles.', 'Décrire un état avec être ou avoir.', 'Adapter les formules au degré de familiarité.'],
+    sections: [
+      ['Demander et répondre', 'Comment ça va ? est courant. Comment allez-vous ? convient à un échange poli. Réponds avec ça va bien, très bien, comme ci comme ça ou ça ne va pas très bien. Et toi/et vous permet de poursuivre.', ['Ça va bien, merci. Et vous ?', 'Comme ci comme ça : ni très bien, ni très mal.']],
+      ['Être ou avoir ?', 'Utilise être avec content, triste, malade ou fatigué. Le français emploie avoir dans avoir faim, avoir soif, avoir chaud et avoir froid. Ne traduis pas directement la construction anglaise.', ['Je suis fatiguée, mais je suis contente.', 'J’ai faim. Tu as soif ?']],
+      ['Demander avec politesse', 'S’il te plaît s’adresse à une personne que l’on tutoie ; s’il vous plaît s’adresse à une personne que l’on vouvoie ou à plusieurs personnes. Merci remercie ; de rien répond à un remerciement. Excusez-moi introduit une demande ou une excuse.', ['Un verre d’eau, s’il vous plaît.', '— Merci ! — De rien.']],
+    ],
+    dialogue: ['— Bonjour Madame, comment allez-vous ?', '— Bien, merci. Et vous ?', '— Je suis fatigué et j’ai soif.', '— Un verre d’eau ?', '— Oui, merci beaucoup.'],
+    extraCards: [['J’ai faim', 'I am hungry', 'J’ai faim, je voudrais manger.'], ['J’ai soif', 'I am thirsty', 'J’ai soif, un verre d’eau s’il vous plaît.'], ['Comme ci comme ça', 'So-so', 'Aujourd’hui, ça va comme ci comme ça.'], ['De rien', 'You are welcome', 'Merci ! — De rien.']],
+    exercises: [
+      ['Complète : J’___ soif.', ['ai'], 'La soif s’exprime avec avoir : j’ai soif.', 'fill'],
+      ['Complète : Nina est ___ . (fatigué au féminin)', ['fatiguée'], 'Ajoute e pour décrire Nina : fatiguée.', 'fill'],
+      ['Remets dans l’ordre : vous / plaît / S’il', ['S’il vous plaît'], 'La formule polie est s’il vous plaît.', 'order'],
+      ['Corrige : Je suis faim.', ['J’ai faim'], 'Utilise avoir, et élide je devant ai.', 'rewrite'],
+    ],
+    application: ['Pourquoi propose-t-on de l’eau dans le dialogue ?', ['La personne a soif.', 'La personne a froid.', 'La personne est étudiante.'], 'La personne a soif.', 'Avoir soif signifie avoir besoin de boire.'],
+    challenge: 'Joue une demande dans un café puis une conversation avec un ami. Utilise un état et une formule polie.',
+  },
+  classroom: {
+    objectives: ['Nommer et compter des objets.', 'Comprendre les consignes écrites de classe.', 'Demander de l’aide en français.'],
+    sections: [
+      ['Apprendre le nom avec son article', 'Un accompagne un nom masculin ; une accompagne un nom féminin ; des indique plusieurs objets. Le genre n’est pas toujours visible dans le mot. Mémorise « une table » comme un ensemble. Au pluriel, le nom prend souvent s, même si ce s ne s’entend pas.', ['Un livre → des livres.', 'Une chaise → des chaises.']],
+      ['Reconnaître une consigne', 'Les consignes s’adressent souvent à vous, sans écrire le pronom : ouvrez, fermez, lisez, écrivez, regardez. Le verbe indique ce qu’il faut faire ; le groupe qui suit précise l’objet ou la page.', ['Ouvrez le livre à la page dix.', 'Écrivez votre prénom. Lisez la phrase.']],
+      ['Demander une explication', 'Tu peux participer même si tu ne comprends pas tout. Je ne comprends pas signale une difficulté. Comment dit-on… en français ? demande un mot. Qu’est-ce que c’est ? demande le nom d’un objet.', ['Qu’est-ce que c’est ? — C’est une gomme.', 'Vous pouvez expliquer, s’il vous plaît ?']],
+    ],
+    dialogue: ['— Ouvrez le livre à la page dix et écrivez votre prénom.', '— Excusez-moi, je ne comprends pas « prénom ».', '— C’est votre premier nom, par exemple Ada.', '— Merci !'],
+    extraCards: [['Une gomme', 'An eraser', 'C’est une gomme.'], ['Une chaise', 'A chair', 'Il y a trois chaises.'], ['Ouvrez le livre', 'Open the book', 'Ouvrez le livre à la page dix.'], ['Écrivez', 'Write', 'Écrivez votre prénom.'], ['Je ne comprends pas', 'I do not understand', 'Excusez-moi, je ne comprends pas.']],
+    exercises: [
+      ['Complète : ___ chaise. (article indéfini singulier)', ['Une'], 'Chaise est féminin : une chaise.', 'fill'],
+      ['Mets au pluriel : un livre → ___ livres.', ['des'], 'Au pluriel, un et une deviennent des.', 'fill'],
+      ['Remets dans l’ordre : votre / Écrivez / prénom', ['Écrivez votre prénom'], 'La consigne commence par le verbe.', 'order'],
+      ['Corrige : une livres.', ['des livres', 'un livre'], 'Accorde article et nom : des livres au pluriel ou un livre au singulier.', 'rewrite'],
+    ],
+    application: ['Que faut-il faire après avoir ouvert le livre ?', ['Écrire son prénom.', 'Fermer le livre.', 'Décrire une chaise.'], 'Écrire son prénom.', 'Le professeur donne deux consignes : ouvrir le livre puis écrire son prénom.'],
+    challenge: 'Prépare trois consignes écrites. Un partenaire les suit puis demande une explication sur un mot.',
+  },
+  articles: {
+    objectives: ['Choisir défini ou indéfini.', 'Accorder un possessif avec l’objet possédé.', 'Utiliser l’élision et les formes devant une voyelle.'],
+    sections: [
+      ['Présenter puis identifier', 'Utilise un, une ou des quand tu présentes un élément. Utilise le, la, l’ ou les quand ton interlocuteur peut l’identifier. L’ remplace le ou la devant une voyelle ou un h muet ; les ne s’élide pas.', ['Voici une école. L’école est grande.', 'J’ai des livres. Les livres sont sur la table.']],
+      ['Choisir le possessif', 'Le possessif dépend d’abord du propriétaire, puis du genre et du nombre de l’objet : à moi → mon/ma/mes ; à toi → ton/ta/tes ; à lui ou à elle → son/sa/ses. Son livre peut être le livre de Paul ou le livre de Nina.', ['Nina a un stylo : son stylo.', 'Paul a une table : sa table. Ils ont des livres : leurs livres.']],
+      ['Voyelles et pluriels', 'Devant un nom féminin commençant par une voyelle ou un h muet, utilise mon, ton ou son : mon amie, son école. Au pluriel, le genre ne change pas mes/tes/ses. Avec nous et vous : notre/votre au singulier, nos/vos au pluriel.', ['Notre livre ; notre table ; nos livres.', 'Votre école ; vos cahiers.']],
+    ],
+    dialogue: ['— C’est ton livre, Ada ?', '— Non, c’est le livre de Nina. Son livre est bleu.', '— Et ces cahiers ?', '— Ce sont mes cahiers.'],
+    extraCards: [['Sa table', 'His/her table', 'Paul montre sa table.'], ['Son amie', 'His/her female friend', 'Nina présente son amie.'], ['Notre classe', 'Our class', 'Notre classe est ici.'], ['Vos cahiers', 'Your notebooks', 'Ouvrez vos cahiers.']],
+    exercises: [
+      ['Complète : ___ amie. (à moi)', ['Mon'], 'Amie est féminin, mais commence par une voyelle : mon amie.', 'fill'],
+      ['Complète : ___ cahiers. (à nous)', ['Nos'], 'Le possessif pluriel de nous est nos.', 'fill'],
+      ['Remets dans l’ordre : son / Nina / livre / montre', ['Nina montre son livre'], 'Son s’accorde avec livre, pas avec Nina.', 'order'],
+      ['Corrige : la école.', ['l’école'], 'La devient l’ devant la voyelle initiale de école.', 'rewrite'],
+    ],
+    application: ['À qui appartient le livre bleu ?', ['À Ada', 'À Nina', 'Au professeur'], 'À Nina', 'Ada précise que c’est le livre de Nina ; son reprend Nina comme propriétaire.'],
+    challenge: 'Dispose cinq objets imaginaires sur une table. Présente-les puis explique à qui ils appartiennent.',
+  },
+  negation: {
+    objectives: ['Encadrer un verbe avec ne… pas.', 'Utiliser n’ correctement.', 'Transformer une affirmation sans perdre son sens.'],
+    sections: [
+      ['Repérer le verbe', 'Pour une phrase simple au présent, identifie le verbe conjugué. Place ne juste avant et pas juste après. Le sujet reste au début et les autres informations gardent leur place.', ['Nous sommes ici → Nous ne sommes pas ici.', 'Tu travailles à Lagos → Tu ne travailles pas à Lagos.']],
+      ['Faire l’élision', 'Ne devient n’ devant une voyelle ou un h muet. Avec un verbe pronominal, ne se place avant le petit pronom : je ne m’appelle pas Paul. N’écris pas « je m’appelle ne pas ».', ['Elle aime le tennis → Elle n’aime pas le tennis.', 'Je m’appelle Ada → Je ne m’appelle pas Nina.']],
+      ['Les articles après une négation', 'Avec avoir, un, une et des deviennent souvent de ou d’ après ne… pas : j’ai un stylo → je n’ai pas de stylo. Après être, garde l’article : ce n’est pas un stylo. Les articles définis restent : je n’aime pas le tennis.', ['Je n’ai pas de livre. Je n’ai pas d’amis ici.', 'Ce n’est pas une table.']],
+    ],
+    dialogue: ['— Tu es professeur ?', '— Non, je ne suis pas professeur. Je suis étudiant.', '— Tu as un livre ?', '— Non, je n’ai pas de livre.'],
+    extraCards: [['Je n’ai pas de livre', 'I do not have a book', 'Je n’ai pas de livre aujourd’hui.'], ['Ce n’est pas', 'It is not', 'Ce n’est pas une gomme.'], ['Elle n’aime pas', 'She does not like', 'Elle n’aime pas le tennis.'], ['Je ne m’appelle pas', 'My name is not', 'Je ne m’appelle pas Paul.']],
+    exercises: [
+      ['Complète : Elle ___ est pas ici.', ['n’', "n'"], 'Ne s’élide devant est.', 'fill'],
+      ['Complète : Je n’ai pas ___ stylo.', ['de'], 'Un devient de après la négation avec avoir.', 'fill'],
+      ['Remets dans l’ordre : pas / ne / Nous / sommes / ici', ['Nous ne sommes pas ici'], 'Ne et pas encadrent sommes.', 'order'],
+      ['Mets à la forme négative : Je m’appelle Paul.', ['Je ne m’appelle pas Paul'], 'Ne se place avant m’, pas après appelle.', 'rewrite'],
+    ],
+    application: ['Que sait-on de la personne interrogée ?', ['Elle est professeur.', 'Elle est étudiante et n’a pas de livre.', 'Elle a deux livres.'], 'Elle est étudiante et n’a pas de livre.', 'Deux réponses donnent son statut et l’absence de livre.'],
+    challenge: 'Écris quatre informations sur un personnage. Ton partenaire en change deux ; corrige-les avec une négation puis une affirmation.',
+  },
+  numbers: {
+    objectives: ['Former les nombres de 0 à 100.', 'Donner un âge, une quantité et un prix.', 'Distinguer les nombres proches.'],
+    sections: [
+      ['Construire de 17 à 69', 'Après seize, combine dix et une unité : dix-sept, dix-huit, dix-neuf. De vingt à soixante, combine la dizaine et l’unité : vingt-deux. Avec un, on dit vingt et un, trente et un, etc.', ['21 : vingt et un ; 28 : vingt-huit.', '34 : trente-quatre ; 62 : soixante-deux.']],
+      ['Comprendre 70, 80 et 90', 'Dans les formes utilisées ici, 70 est soixante-dix (60 + 10), 80 est quatre-vingts (4 × 20), 90 est quatre-vingt-dix (80 + 10). Quatre-vingts perd son s quand un autre nombre suit. Ces formes ne sont pas les seules dans la francophonie.', ['71 : soixante et onze ; 75 : soixante-quinze.', '80 : quatre-vingts ; 81 : quatre-vingt-un ; 99 : quatre-vingt-dix-neuf.']],
+      ['Utiliser les nombres', 'Pour l’âge : j’ai, tu as, il/elle a, nous avons, vous avez, ils/elles ont + nombre + ans. Pour compter : il y a + nombre + nom. Pour un prix : ça coûte + nombre + euros. Les noms prennent généralement s au pluriel.', ['J’ai vingt et un ans. Elle a trente ans.', 'Il y a huit livres. Ça coûte douze euros.']],
+    ],
+    dialogue: ['— Tu as quel âge ?', '— J’ai vingt et un ans.', '— Et ce cahier, il coûte combien ?', '— Deux euros. Trois cahiers coûtent six euros.'],
+    extraCards: [['Vingt et un', 'Twenty-one', 'J’ai vingt et un ans.'], ['Soixante-dix', 'Seventy', 'Il y a soixante-dix pages.'], ['Quatre-vingts', 'Eighty', 'Le billet coûte quatre-vingts euros.'], ['Cent', 'One hundred', 'Il y a cent personnes.']],
+    exercises: [
+      ['Écris 22 en lettres.', ['vingt-deux'], 'Combine vingt et deux avec un trait d’union.', 'fill'],
+      ['Écris 80 en lettres.', ['quatre-vingts'], 'Quatre-vingts prend s lorsqu’il termine le nombre.', 'fill'],
+      ['Remets dans l’ordre : ans / J’ / ai / vingt et un', ['J’ai vingt et un ans'], 'L’âge se construit avec avoir et se termine par ans.', 'order'],
+      ['Corrige : Je suis trente ans.', ['J’ai trente ans'], 'Le français utilise avoir pour exprimer l’âge.', 'rewrite'],
+    ],
+    application: ['Un cahier coûte deux euros. Combien coûtent trois cahiers ?', ['Cinq euros', 'Six euros', 'Huit euros'], 'Six euros', 'Trois fois deux font six.',],
+    challenge: 'Joue un achat de fournitures avec des prix inventés. Demande le prix de deux objets et calcule le total en français.',
+  },
+  calendar: {
+    objectives: ['Lire une date et une heure.', 'Distinguer un rendez-vous et une habitude.', 'Proposer et confirmer un créneau.'],
+    sections: [
+      ['Le jour et la date', 'Utilise nous sommes le… ou c’est le… pour une date. Le premier jour se dit premier, puis deux, trois, etc. Les jours et les mois prennent une minuscule. « Mardi » peut désigner un rendez-vous ; « le mardi » exprime souvent une habitude.', ['Nous sommes le premier octobre.', 'J’ai cours mardi. J’ai cours le mardi : chaque mardi.']],
+      ['Lire l’heure', 'Il est + nombre + heure(s) donne l’heure actuelle ; à introduit l’heure d’un événement. Pour 15 minutes : et quart ; pour 30 : et demie ; pour 45 : moins le quart avec l’heure suivante. Midi et minuit remplacent douze heures dans certains contextes.', ['Il est neuf heures et quart. Le cours est à neuf heures.', '9 h 45 : dix heures moins le quart ; 12 h : midi.']],
+      ['Éviter une ambiguïté', 'L’horaire sur 24 heures est pratique pour les rendez-vous : quinze heures = trois heures de l’après-midi. Pour une durée, utilise de… à… . Vérifie ensemble le jour, la date et l’heure.', ['Le cours est de neuf heures à onze heures.', 'Vendredi à quinze heures, d’accord ?']],
+    ],
+    dialogue: ['— Tu es libre vendredi à quatorze heures ?', '— Non, j’ai cours de treize heures à quinze heures.', '— Alors, à quinze heures et demie ?', '— D’accord, vendredi à quinze heures trente.'],
+    extraCards: [['Et quart', 'Quarter past', 'Il est dix heures et quart.'], ['Moins le quart', 'Quarter to', 'Il est onze heures moins le quart.'], ['Midi', 'Noon', 'On mange à midi.'], ['De neuf heures à onze heures', 'From nine to eleven', 'Le cours est de neuf heures à onze heures.']],
+    exercises: [
+      ['Complète 10 h 15 : dix heures et ___.', ['quart'], 'Un quart d’heure correspond à quinze minutes.', 'fill'],
+      ['Complète : Le cours est ___ neuf heures à onze heures.', ['de'], 'De… à… indique le début et la fin.', 'fill'],
+      ['Remets dans l’ordre : à / Rendez-vous / midi', ['Rendez-vous à midi'], 'À introduit l’heure du rendez-vous.', 'order'],
+      ['Écris 9 h 45 avec « moins le quart ».', ['dix heures moins le quart'], 'Il manque quinze minutes pour arriver à dix heures.', 'rewrite'],
+    ],
+    application: ['Quelle heure les deux personnes choisissent-elles ?', ['14 h', '15 h', '15 h 30'], '15 h 30', 'La première proposition est refusée ; la seconde, quinze heures et demie, est acceptée.'],
+    challenge: 'Prépare un emploi du temps de trois activités. Trouve un rendez-vous avec un partenaire sans chevaucher les cours.',
+  },
+  preferences: {
+    objectives: ['Nuancer ses goûts.', 'Conjuguer aimer au présent.', 'Parler d’un sport et expliquer une préférence simple.'],
+    sections: [
+      ['Du goût à la phrase', 'Aimer, adorer et détester expriment des degrés différents. Aimer bien est positif ; adorer est plus fort ; ne pas aimer indique un goût négatif. Pour une activité en général, garde le, la ou les.', ['J’aime bien le tennis. J’adore la natation.', 'Je n’aime pas le rugby. Je déteste ce sport.']],
+      ['Un verbe régulier en -er', 'Pour aimer au présent : j’aime, tu aimes, il/elle/on aime, nous aimons, vous aimez, ils/elles aiment. La terminaison écrite distingue plusieurs sujets même lorsque la prononciation est proche. Devant un infinitif, aucun article n’est nécessaire.', ['Nous aimons le football. Vous aimez nager ?', 'J’aime nager. Elle aime jouer.']],
+      ['Pratiquer et donner une raison', 'Jouer à s’emploie avec de nombreux jeux et sports : jouer au football. Faire de introduit une activité : faire de la natation. Parce que relie une préférence à une raison simple avec c’est.', ['Je joue au tennis. Je fais de la natation.', 'J’aime le tennis parce que c’est amusant.']],
+    ],
+    dialogue: ['— Tu aimes le football ?', '— Oui, mais je préfère la natation.', '— Pourquoi ?', '— Parce que c’est agréable. Je nage le samedi.'],
+    extraCards: [['Je préfère', 'I prefer', 'Je préfère la natation.'], ['Parce que', 'Because', 'J’aime ce sport parce que c’est amusant.'], ['Jouer au tennis', 'To play tennis', 'Je joue au tennis.'], ['Faire de la natation', 'To swim / do swimming', 'Je fais de la natation le samedi.']],
+    exercises: [
+      ['Complète : Nous ___ le tennis. (aimer)', ['aimons'], 'Avec nous, la terminaison est -ons.', 'fill'],
+      ['Complète : Je joue ___ football.', ['au'], 'Jouer à + le football devient jouer au football.', 'fill'],
+      ['Remets dans l’ordre : aime / nager / J’', ['J’aime nager'], 'Après aimer, on peut utiliser un infinitif directement.', 'order'],
+      ['Mets à la forme négative : Elle aime le rugby.', ['Elle n’aime pas le rugby'], 'Ne devient n’ ; pas suit aime ; le reste devant rugby.', 'rewrite'],
+    ],
+    application: ['Quel sport la personne préfère-t-elle ?', ['Le football', 'La natation', 'Le tennis'], 'La natation', 'Elle aime le football mais préfère la natation.'],
+    challenge: 'Interroge un partenaire sur trois loisirs. Présente un goût partagé et une différence, avec une raison.',
+  },
+  town: {
+    objectives: ['Situer des lieux les uns par rapport aux autres.', 'Demander un itinéraire.', 'Suivre trois indications successives.'],
+    sections: [
+      ['Demander où se trouve un lieu', 'Où est… ? convient à un lieu singulier ; où sont… ? à plusieurs lieux. Il y a annonce l’existence d’un lieu. Le lieu devient ensuite le sujet d’une description.', ['Où est la gare ? Il y a une gare ici ?', 'Il y a un café. Le café est devant la gare.']],
+      ['Décrire une position', 'Devant et derrière situent par rapport à un repère. À côté de indique la proximité ; en face de place de l’autre côté. De + le devient du et de + les devient des. Avec la ou l’, il n’y a pas de contraction.', ['Le café est à côté du musée.', 'La gare est en face de l’école.']],
+      ['Donner un trajet', 'Tournez à gauche, tournez à droite et continuez tout droit sont des consignes. Organise les étapes avec d’abord, puis et enfin. Sépare la position d’un lieu du mouvement pour y arriver.', ['D’abord, continuez tout droit. Puis, tournez à droite.', 'Enfin, la gare est à gauche.']],
+    ],
+    dialogue: ['— Excusez-moi, où est le musée ?', '— Continuez tout droit, puis tournez à gauche.', '— C’est loin ?', '— Non, le musée est en face du café.'],
+    extraCards: [['À droite', 'To the right', 'Tournez à droite.'], ['En face de', 'Opposite', 'Le musée est en face du café.'], ['À côté du musée', 'Next to the museum', 'La gare est à côté du musée.'], ['Puis', 'Then', 'Continuez, puis tournez à gauche.'], ['C’est loin ?', 'Is it far?', 'La gare, c’est loin ?']],
+    exercises: [
+      ['Complète : à côté ___ musée.', ['du'], 'De + le musée devient du musée.', 'fill'],
+      ['Complète : Où ___ les cafés ?', ['sont'], 'Les cafés est pluriel : où sont… ?', 'fill'],
+      ['Remets dans l’ordre : à / Tournez / droite', ['Tournez à droite'], 'La consigne commence par tournez.', 'order'],
+      ['Corrige : en face de le café.', ['en face du café'], 'De + le se contracte en du.', 'rewrite'],
+    ],
+    application: ['Où se trouve le musée dans le dialogue ?', ['En face du café', 'Derrière la gare', 'Dans l’école'], 'En face du café', 'La dernière indication situe le musée par rapport au café.'],
+    challenge: 'Dessine un plan simple sur papier avec quatre lieux. Ton partenaire suit tes trois indications pour trouver le lieu secret.',
+  },
+  outings: {
+    objectives: ['Proposer un lieu et un horaire.', 'Conjuguer aller et contracter à.', 'Accepter, refuser et proposer une alternative.'],
+    sections: [
+      ['Aller vers une destination', 'Aller est irrégulier : je vais, tu vas, il/elle/on va, nous allons, vous allez, ils/elles vont. Pour un lieu, utilise à la, à l’, au ou aux selon le nom.', ['Je vais au musée. Elle va à la bibliothèque.', 'Nous allons aux toilettes. Tu vas à l’école.']],
+      ['Construire l’invitation', 'Tu es libre… ? vérifie la disponibilité. On va… ? propose une activité commune. Ajoute le jour, l’heure et le point de rencontre. On utilise va, même quand on désigne plusieurs personnes.', ['Tu es libre samedi ? On va au cinéma ?', 'Rendez-vous devant le cinéma à quinze heures.']],
+      ['Répondre et négocier', 'Oui, avec plaisir accepte clairement. Désolé(e), je ne suis pas libre refuse poliment. Une alternative permet de poursuivre : et dimanche ? Confirme ensuite les nouveaux détails pour éviter un malentendu.', ['Samedi, je ne suis pas libre. Et dimanche ?', 'D’accord pour dimanche à seize heures.']],
+    ],
+    dialogue: ['— On va au musée samedi à dix heures ?', '— Désolée, je ne suis pas libre. Et dimanche ?', '— Oui, avec plaisir. À dix heures aussi ?', '— D’accord. Rendez-vous devant le musée.'],
+    extraCards: [['Tu es libre ?', 'Are you free?', 'Tu es libre dimanche ?'], ['D’accord', 'Okay / agreed', 'D’accord pour dimanche.'], ['Rendez-vous devant', 'Meet in front of', 'Rendez-vous devant le musée.'], ['Et dimanche ?', 'How about Sunday?', 'Samedi, non. Et dimanche ?']],
+    exercises: [
+      ['Complète : Ils ___ au musée. (aller)', ['vont'], 'Avec ils : vont.', 'fill'],
+      ['Complète : Elle va ___ bibliothèque.', ['à la'], 'Bibliothèque est féminin : à la bibliothèque.', 'fill'],
+      ['Remets dans l’ordre : cinéma / On / au / va', ['On va au cinéma'], 'On prend va ; à + le devient au.', 'order'],
+      ['Corrige : Nous vont au musée.', ['Nous allons au musée'], 'Avec nous, aller devient allons.', 'rewrite'],
+    ],
+    application: ['Quel rendez-vous est finalement retenu ?', ['Samedi à dix heures', 'Dimanche à dix heures', 'Dimanche à seize heures'], 'Dimanche à dix heures', 'Le jour change, mais les personnes gardent dix heures.'],
+    challenge: 'Négocie une sortie en trois échanges : première proposition, refus avec alternative, puis confirmation complète.',
+  },
+  messages: {
+    objectives: ['Remplir des champs simples.', 'Rédiger un email organisé.', 'Demander une information avec politesse.'],
+    sections: [
+      ['Lire un formulaire', 'Nom correspond généralement au nom de famille ; prénom correspond au nom personnel. Date de naissance, nationalité et adresse sont des informations distinctes. Copie chaque information dans le champ approprié et vérifie les lettres et chiffres.', ['Prénom : Ada. Nom : Bello.', 'Nationalité : nigériane. Ville : Lagos.']],
+      ['Organiser un email', 'L’objet indique le sujet en quelques mots. Le message commence par Bonjour Madame/Monsieur ou Bonjour suivi d’un prénom selon la relation. Présente-toi, formule une seule demande claire, remercie, puis signe.', ['Objet : Horaire du cours.', 'Bonjour Madame, je m’appelle Ada Bello. À quelle heure commence le cours ?']],
+      ['Relire pour être compris', 'Vérifie que la question contient un point d’interrogation et que le destinataire sait qui écrit. Cordialement convient à une fin polie. Une adresse électronique contient un identifiant, @ et un domaine. Utilise des coordonnées fictives dans ces exercices.', ['Merci pour votre réponse. Cordialement, Ada Bello.', 'ada@example.com : une adresse fictive pour s’entraîner.']],
+    ],
+    dialogue: ['Objet : Inscription au cours', 'Bonjour Monsieur,', 'Je m’appelle Ada Bello. Je suis étudiante. Le cours commence à quelle heure ?', 'Merci pour votre réponse.', 'Cordialement, Ada Bello.'],
+    extraCards: [['L’objet du message', 'The email subject', 'Objet : Inscription au cours.'], ['La date de naissance', 'The date of birth', 'Indiquez une date de naissance fictive.'], ['Une inscription', 'A registration', 'Je demande une inscription au cours.'], ['Merci pour votre réponse', 'Thank you for your reply', 'Merci pour votre réponse. Cordialement, Ada.']],
+    exercises: [
+      ['Ada Bello : complète le champ Nom.', ['Bello'], 'Nom désigne ici le nom de famille.', 'fill'],
+      ['Complète la formule : Merci pour ___ réponse. (vous)', ['votre'], 'Réponse est singulier : votre réponse.', 'fill'],
+      ['Remets dans l’ordre : votre / Merci / réponse / pour', ['Merci pour votre réponse'], 'Pour introduit ce dont on remercie la personne.', 'order'],
+      ['Corrige : Vous vous appellez Ada.', ['Vous vous appelez Ada'], 'Appelez s’écrit avec un seul l.', 'rewrite'],
+    ],
+    application: ['Que demande Ada dans le message ?', ['Le prix du livre', 'L’heure du cours', 'La nationalité du professeur'], 'L’heure du cours', 'Sa question porte sur l’heure de début du cours.'],
+    challenge: 'Écris un email demandant le jour et le prix d’un cours. Un partenaire répond à tes deux questions.',
+  },
+  francophonie: {
+    objectives: ['Distinguer langue, nationalité et résidence.', 'Situer quelques lieux francophones.', 'Présenter un profil plurilingue sans généraliser.'],
+    sections: [
+      ['Une langue partagée, des profils variés', 'Une personne francophone utilise le français. Elle peut avoir une autre langue maternelle et parler plusieurs langues. Une nationalité ne permet pas de connaître toutes les langues d’une personne : il faut lui demander.', ['Je suis nigériane et je parle français et anglais.', 'Quelles langues parlez-vous ?']],
+      ['Situer des lieux', 'Le français est utilisé dans plusieurs régions du monde. Dakar est au Sénégal ; Montréal est au Québec, une province du Canada ; Bruxelles est en Belgique. Ces lieux ne se réduisent pas à une seule langue ou une seule culture.', ['Dakar : une ville ; le Sénégal : un pays.', 'Montréal : une ville ; le Québec : une province.']],
+      ['Présenter sans confondre', 'Pour une nationalité, utilise être + adjectif. Pour les langues, utilise parler + nom de langue, généralement sans article. Pour la résidence, utilise habiter + lieu. Ces trois phrases donnent des informations différentes.', ['Elle est canadienne. Elle parle français. Elle habite à Montréal.', 'Nous parlons français. Vous parlez quelles langues ?']],
+    ],
+    dialogue: ['— Je m’appelle Awa. J’habite à Dakar.', '— Tu parles quelles langues ?', '— Je parle wolof et français.', '— Moi, je suis canadienne. J’habite à Montréal et je parle français et anglais.'],
+    extraCards: [['Plurilingue', 'Multilingual', 'Une personne plurilingue parle plusieurs langues.'], ['La langue maternelle', 'The first/native language', 'Quelle est ta langue maternelle ?'], ['La Belgique', 'Belgium', 'Bruxelles est en Belgique.'], ['Je parle français', 'I speak French', 'Je parle français et anglais.']],
+    exercises: [
+      ['Complète : Bruxelles est ___ Belgique.', ['en'], 'La Belgique est un pays féminin : en Belgique.', 'fill'],
+      ['Complète : Nous ___ français. (parler)', ['parlons'], 'Avec nous : parlons.', 'fill'],
+      ['Remets dans l’ordre : français / parle / Elle / et anglais', ['Elle parle français et anglais'], 'Parler introduit directement les langues dans cette construction.', 'order'],
+      ['Réécris avec nous : Je parle français.', ['Nous parlons français'], 'Le changement de sujet entraîne la terminaison -ons.', 'rewrite'],
+    ],
+    application: ['Quelles langues Awa dit-elle parler ?', ['Français et anglais', 'Wolof et français', 'Seulement français'], 'Wolof et français', 'Awa donne ses propres langues ; l’autre personne parle français et anglais.'],
+    challenge: 'Présente deux personnages plurilingues avec leur nationalité, leur ville et leurs langues. Pose ensuite deux questions à un partenaire.',
+  },
+}
+
+const explanations = {
+  alphabet: ['Café contient é, un e avec un accent aigu. Classe et salut n’ont pas d’accent.', 'Les lettres suivent l’ordre du prénom : L, puis I, puis N, puis A.', 'Dans salut, le t final est muet. Ce repère ne s’applique pas à tous les mots terminés par t.'],
+  introductions: ['Bonsoir est la salutation du soir ; bonjour s’utilise dans la journée et salut est familier.', 'Je m’appelle sert à donner son nom, pas son lieu de résidence ni ses goûts.', 'Enchanté(e) exprime le plaisir de faire connaissance. La terminaison écrite dépend de la personne qui parle.'],
+  pronouns: ['Vous se conjugue avec êtes. Sommes correspond à nous ; sont correspond à ils ou elles.', 'On prend la troisième personne du singulier : est, comme il et elle.', 'Léa et Nina forment un groupe féminin pluriel : elles. Elle est singulier.'],
+  countries: ['Nigérian devient nigériane au féminin. Nigeria est le nom du pays, pas une nationalité.', 'Elles demande le féminin pluriel : françaises. France est le pays.', 'Il demande français. Française décrit une personne au féminin ; France est un nom de pays.'],
+  professions: ['Avec je, être se conjugue suis. Es correspond à tu ; est correspond à il ou elle.', 'Professeur nomme un métier. Lundi est un jour et ici indique un lieu.', 'Avec elle, on écrit étudiante au féminin. Études désigne le domaine d’apprentissage.'],
+  feelings: ['S’il vous plaît accompagne une demande polie. À gauche indique une direction ; dix livres une quantité.', 'Pour décrire Léa, fatigué prend un e : fatiguée. Fatigués est pluriel.', 'Ça va bien, merci répond à une question sur le bien-être. Les autres réponses parlent d’un objet ou d’une heure.'],
+  classroom: ['Un livre se traduit par a book. A pen désigne un stylo et a chair une chaise.', 'Écoutez signifie listen. Écrivez signifie write ; répétez signifie repeat.', 'Répétez demande de dire ou faire une nouvelle fois : repeat. Lire et écrire sont d’autres consignes.'],
+  articles: ['École commence par une voyelle. La devient l’ devant école.', 'Livres est pluriel : utilise mes pour indiquer à moi. Mon et ma sont singuliers.', 'Table est féminin singulier : ta table. Ton est masculin ; tes est pluriel.'],
+  negation: ['Ne devient n’ devant est, puis pas suit le verbe : elle n’est pas ici.', 'Ne se place avant suis et pas après. Non est une réponse indépendante.', 'N’est pas contient les deux éléments de la négation. Les deux autres phrases sont affirmatives.'],
+  numbers: ['Quatorze correspond à 14. Quatre correspond à 4 et quarante à 40.', 'Pour l’âge, utilise avoir : j’ai vingt ans. Être ne convient pas dans cette construction.', 'Dix plus deux font douze : 10 + 2 = 12. Onze vaut 11 et vingt vaut 20.'],
+  calendar: ['L’ordre est lundi, mardi, mercredi. Mercredi suit donc mardi.', 'Une demi-heure vaut trente minutes : neuf heures et demie. Un quart vaut quinze minutes.', 'À introduit une heure de rendez-vous : à dix heures. Le introduit notamment une date.'],
+  preferences: ['Natation est féminin singulier : la natation. Après aimer pour un goût général, on garde l’article défini.', 'Ne… pas rend la préférence négative. Aimer et adorer sans négation expriment un goût positif.', 'Avec tu, aimer prend -es : tu aimes. Aime correspond notamment à je ou il ; aimer est l’infinitif.'],
+  town: ['La gare est the train station. School désigne l’école et park le parc.', 'À gauche signifie to the left. À droite signifie to the right et tout droit straight ahead.', 'Tout droit demande de continuer sans tourner : straight ahead.',],
+  outings: ['Avec nous, aller devient allons. Vais correspond à je ; va à il, elle ou on.', 'À + le cinéma se contracte en au cinéma. Cinéma est masculin.', 'Avec plaisir accepte la proposition. Les deux autres réponses la refusent.'],
+  messages: ['Dans Ada Bello, Ada est le prénom et Bello le nom de famille.', 'Avec tu, s’appeler devient tu t’appelles. M’appelle correspond à je et s’appelle à il ou elle.', 'Cordialement termine un message poli. Les deux autres propositions ne sont pas des formules de fin.'],
+  francophonie: ['Francophone signifie qui parle français. Cela n’exclut pas la connaissance d’autres langues.', 'Sénégal est masculin : à + le devient au pour situer Dakar au Sénégal.', 'Le Québec est une province du Canada ; ce n’est ni une ville de France ni un pays européen.'],
+}
+
+export function deepen(lesson) {
+  const content = depth[lesson.id]
+  const [question, options, answer, explanation] = content.application
+  return {
+    ...lesson, ...content,
+    cards: [...lesson.cards, ...content.extraCards.map(([front, back, example]) => ({ front, back, example, tag: lesson.title }))],
+    quiz: [...lesson.quiz.map((q, index) => ({ ...q, explanation: explanations[lesson.id][index] })), { question, options, answer, explanation }],
+    exercises: content.exercises.map(([prompt, answers, explanation, type], index) => ({ id: `${lesson.id}-exercise-${index}`, prompt, answers, explanation, type })),
+  }
+}
