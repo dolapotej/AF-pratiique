@@ -35,7 +35,7 @@ The preference is saved separately in this browser (`af-pratique-english-help`) 
 
 ## Progress and feedback
 
-Revealing a card records a view; it does not mark it known. “Je connais” and “À revoir” are learner self-ratings, scheduling the card in three days or one day respectively. A daily session contains up to eight mistakes/due cards, then vocabulary from the current lesson or previously viewed cards. It resumes across reloads and refreshes the next local calendar day. This is a simple review schedule, not an adaptive spaced-repetition algorithm.
+Revealing a card records a view; it does not mark it known. “Je connais” and “À revoir” are learner self-ratings, scheduling the card in three days or one day respectively. This is a simple review schedule, not an adaptive spaced-repetition algorithm.
 
 Quiz attempts resume across reloads; completed scores are stored (up to 30 per lesson). Mistakes remain available for review until answered correctly. Completion requires all cards self-rated known, all guided exercises answered correctly, and at least 80% on the latest quiz. With four questions, that currently means four correct answers.
 
@@ -45,10 +45,17 @@ Version 5 saves accept versions 2 through 4, preserving views, ratings, drafts a
 
 ## Verification boundaries
 
-Logic tests cover scoring, review selection, answer matching, migration and save round-tripping. Browser tests cover all lessons, exercises, quiz results, draft persistence, backup/reset, storage failures, keyboard focus and viewport bounds. Phone viewports are Chrome emulation, not physical-device or Safari tests.
+Logic tests cover scoring, review selection, answer matching, migration and save round-tripping. Browser tests cover the four views, all lessons, exercises, quiz results, draft persistence, backup/reset, storage failures, keyboard focus and viewport bounds. Phone viewports are Chrome emulation, not physical-device or Safari tests.
 
 Flashcards now begin with individual alphabet letters, numbers and calendar words before recap cards. English help translates every example and explains selected grammar traps. Letter sound guides are approximate written aids; no audio has been added. Older backups migrate card positions, ratings and daily-review references to the expanded decks.
 
-## Navigation and reading
+## Interface
 
-The lesson picker supports French and English title search (accent-insensitive) and category filters. Selecting a lesson closes the picker and focuses practice. Grammar lessons include section shortcuts. English help adds bilingual activity labels and a collapsible navigation guide. Mobile layouts use a compact header and a three-column activity grid; cards have explicit flip hints and larger navigation controls.
+The blue / white / red redesign follows `design_handoff_af_pratique_redesign/README.md`: one task per screen behind a left sidebar (a top band on phones). **Aujourd’hui** gives the next step and three stats; **Leçons** is a searchable list (accent- and case-insensitive, French or English titles); **Mon carnet** holds per-lesson progress and export / import / reset. A lesson shows one of four activities at a time:
+
+- **Apprendre**: teaching sections with examples, then the scene.
+- **Cartes**: one card, flip, then self-rate.
+- **Quiz**: guided exercises one at a time (step 1), then the multiple-choice quiz (step 2).
+- **Écrire**: free writing with a model answer and self-checklist, plus the textbook project where a lesson has one.
+
+The previous speaking activity and the daily review session are not shown in this pass; their data and logic in `src/progress.js` remain, and older saves that were on speaking open on Apprendre. English help only ever adds asides beside the French.

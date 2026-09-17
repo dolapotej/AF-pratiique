@@ -1,7 +1,7 @@
 import './style.css'
 import { lessons } from './data/lessons.js'
 import { english, activityHelp } from './data/english.js'
-import { readProgress, writeProgress, freshProgress, normalizeProgress, rateCard, answerQuiz, nextQuiz, mastery, nextActivity, dailySession, updateMistake, isCorrect } from './progress.js'
+import { readProgress, writeProgress, freshProgress, normalizeProgress, rateCard, answerQuiz, nextQuiz, mastery, nextActivity, isCorrect } from './progress.js'
 
 const app = document.querySelector('#app')
 const live = document.createElement('p')
@@ -13,148 +13,214 @@ let storage
 try { storage = window.localStorage } catch { /* Memory-only practice remains available. */ }
 let englishHelp = false
 try { englishHelp = storage?.getItem('af-pratique-english-help') === 'true' } catch {}
-const questionHelp = new WeakMap()
-const exerciseHelp = new WeakMap()
-for (const lesson of lessons) {
-  lesson.quiz.forEach((question, index) => questionHelp.set(question, { prompt: english[lesson.id].questions[index], lessonId: lesson.id }))
-  lesson.exercises.forEach((exercise, index) => exerciseHelp.set(exercise, { prompt: english[lesson.id].exercises[index], lessonId: lesson.id }))
-}
 let progress = readProgress(storage)
-let mode = progress.progress[progress.lessonId].mode
+let view = 'today'
 let flipped = false
-let catalogue = false
-let category = 'Toutes'
+let showModel = false
 let lessonSearch = ''
-let writingFeedback = false
-let review = false
-let reviewAnswer = null
+let exerciseIndex = 0
 let storageFailed = !storage
 let message = ''
-const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;')
-const h = escapeHtml
+
+// The redesign shows four activities. Saved modes keep their old names so backups stay compatible:
+// exercises and quiz both live under Quiz, and the dropped speaking mode opens Apprendre.
+const activities = [['learn', 'Apprendre'], ['cards', 'Cartes'], ['quiz', 'Quiz'], ['write', 'Écrire']]
+const activityOf = mode => ({ cards: 'cards', exercises: 'quiz', quiz: 'quiz', writing: 'write' })[mode] || 'learn'
+const activityLabel = mode => activities.find(([id]) => id === activityOf(mode))[1]
+const navItems = [['today', 'Aujourd’hui'], ['lessons', 'Leçons'], ['carnet', 'Mon carnet']]
+
+const h = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;')
 const current = () => lessons.find(l => l.id === progress.lessonId)
 const record = () => progress.progress[progress.lessonId]
-const button = (id, label, cls = 'primary-btn', extra = '') => `<button id="${id}" class="${cls}" ${extra}>${label}</button>`
-function englishNote(text) { return englishHelp && text ? `<aside class="english-note" lang="en">${h(text)}</aside>` : '' }
-function englishRules(lessonId) { return englishHelp ? `<details class="english-rules" lang="en"><summary>Review the rules in English</summary><ul>${english[lessonId].sections.map(text => `<li>${h(text)}</li>`).join('')}</ul></details>` : '' }
+const button = (id, label, cls = 'btn btn-primary', extra = '') => `<button id="${id}" class="${cls}" ${extra}>${label}</button>`
+const englishNote = text => englishHelp && text ? `<aside class="english-note" lang="en">${h(text)}</aside>` : ''
+const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 function save() { storageFailed = !writeProgress(storage, progress) }
 function announce(text) { live.textContent = text }
-function changeLesson(id, nextMode = null) {
-  catalogue = false
+function firstOpenExercise() {
+  const lesson = current(), p = record()
+  const index = lesson.exercises.findIndex(e => !(p.exercises[e.id]?.checked && isCorrect(e, p.exercises[e.id].answer)))
+  return Math.max(index, 0)
+}
+function openLesson(id, mode = null) {
   progress.lessonId = id
-  mode = nextMode || record().mode
-  record().mode = mode
-  flipped = false; writingFeedback = false; review = false; reviewAnswer = null
-  save(); render('practice-title')
-  document.querySelector('#practice-title').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const p = record()
+  if (mode) p.mode = mode
+  if (p.mode === 'speaking') p.mode = 'grammar'
+  view = 'lesson'; flipped = false; showModel = false; exerciseIndex = firstOpenExercise()
+  save()
 }
 
 function render(focusId) {
   const previousFocus = focusId || document.activeElement?.id
-  const lesson = current(), p = record(), summary = mastery(lesson, p)
   const known = lessons.reduce((n, l) => n + mastery(l, progress.progress[l.id]).known, 0)
   const total = lessons.reduce((n, l) => n + l.cards.length, 0)
-  const percent = Math.round(known / total * 1000) / 10
-  const position = lessons.indexOf(lesson)
-  app.innerHTML = `<a class="skip-link" href="#practice-title">Aller à la pratique</a>
+  const lesson = current()
+  app.innerHTML = `<a class="skip-link" href="#page-title">Aller au contenu</a>
     <div class="app-shell">
-      <aside class="sidebar"><div class="brand"><span class="brand-mark">AF</span><span>pratique</span></div><p class="sidebar-kicker">Mon parcours</p>
-        <nav class="level-nav" aria-label="Niveaux"><span class="level active" aria-current="page"><span>A1</span><small>Débutant</small></span>${['A2', 'B1', 'B2'].map(level => `<button class="level muted" disabled><span>${level}</span><small>Bientôt</small></button>`).join('')}</nav>
-        <div class="sidebar-foot">Un peu chaque jour.</div></aside>
-      <main class="main-content"><header class="topbar"><div class="breadcrumb">A1 / <strong>A1.1 · Les bases</strong></div>${button('english-toggle', englishHelp ? 'English help: on' : 'English help', 'secondary-btn english-toggle', `lang="en" aria-pressed="${englishHelp}"`)}<a class="notebook-link" href="#notebook-title">Mon carnet</a><span class="streak">${known} / ${total} cartes connues</span></header>${englishHelp ? `<details id="english-overview" class="english-note" lang="en"><summary>English help is on · Navigation guide</summary><p>Continuer = resume; Ma révision du jour = daily review; Choisir une leçon = choose a lesson. Apprendre = learn; Cartes = flashcards; Exercices = exercises; Écrire = write; Parler = speak. Turn this help off at any time. Your browser remembers your choice.</p></details>` : ''}
-        <section class="welcome"><div><p class="eyebrow">${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p><h1>Bonjour.</h1><p class="lede">Comprendre, pratiquer, puis revenir.</p></div><div class="progress-ring" style="--progress:${percent * 3.6}deg"><strong>${percent}%</strong><span>connues</span></div></section>
-        <section class="continue-panel"><span class="section-label">Ton prochain pas</span><h2>${h(lessons.find(l => l.id === nextActivity(progress).lessonId).title)}</h2><p>Reprends ton activité ou révise jusqu’à 8 éléments.</p><div class="actions">${button('start-review', 'Continuer →')}${button('daily-start', 'Ma révision du jour')}</div></section>
-        <div class="section-heading practice-heading"><div><span class="section-label">Étape ${position + 1} / ${lessons.length} · ${h(lesson.category)}</span><h2 id="practice-title" tabindex="-1">${review ? 'Ma révision du jour' : h(lesson.title)}</h2></div>${button('catalogue-toggle', catalogue ? 'Fermer les leçons' : 'Choisir une leçon', 'secondary-btn', `aria-expanded="${catalogue}" aria-controls="catalogue"`)}</div>
-        <section id="catalogue" ${catalogue ? '' : 'hidden'} aria-label="Catalogue des leçons"><label class="search-label" for="lesson-search">Rechercher une leçon ${englishHelp ? '<span lang="en">/ Find a lesson</span>' : ''}</label><input type="search" id="lesson-search" value="${h(lessonSearch)}" placeholder="Alphabet, nombres, introductions…" aria-describedby="lesson-search-status"><p id="lesson-search-status" role="status"></p><p>Parcours conseillé : commence par l’alphabet et avance à ton rythme. Toutes les leçons restent accessibles.</p><nav class="category-tabs" aria-label="Catégories">${['Toutes', ...new Set(lessons.map(l => l.category))].map((name, i) => `<button id="category-${i}" data-category="${h(name)}" aria-pressed="${category === name}" class="mode-tab ${category === name ? 'active' : ''}">${h(name)}</button>`).join('')}</nav><div class="lesson-grid">${lessons.map((l, index) => ({ l, index })).filter(({ l }) => category === 'Toutes' || l.category === category).map(({ l, index }) => {
-          const s = mastery(l, progress.progress[l.id])
-          return `<button id="lesson-${l.id}" class="lesson-card ${l.id === lesson.id ? 'selected' : ''}" data-lesson="${l.id}" aria-pressed="${l.id === lesson.id}"><span class="lesson-number ${l.color}">${String(index + 1).padStart(2, '0')}</span><span class="lesson-info"><strong>${h(l.title)}</strong><small>${h(l.subtitle)}</small><em>${s.complete ? 'Objectifs validés' : `${s.known} / ${l.cards.length} cartes connues`}</em></span></button>`
-        }).join('')}</div></section>
-        ${review ? '' : `<p class="learning-summary">${p.reviewed.length} cartes vues · ${summary.known} connues · ${summary.exercises} / ${lesson.exercises.length} exercices réussis · Dernier quiz : ${summary.score === null ? 'à faire' : `${summary.score} / ${lesson.quiz.length}`}</p><nav class="mode-tabs" aria-label="Activités">${[['grammar', 'Apprendre'], ['cards', 'Cartes'], ['exercises', 'Exercices'], ['quiz', 'Quiz'], ['writing', 'Écrire'], ['speaking', 'Parler']].map(([id, label]) => `<button id="mode-${id}" data-mode="${id}" class="mode-tab ${mode === id ? 'active' : ''}" aria-pressed="${mode === id}" aria-controls="practice-panel">${label}${englishHelp ? `<small lang="en">${({grammar: 'Learn', cards: 'Flashcards', exercises: 'Practice', quiz: 'Quiz', writing: 'Write', speaking: 'Speak'})[id]}</small>` : ''}</button>`).join('')}</nav>`}
-        ${englishNote(review ? activityHelp.daily : `${english[current().id].title}. ${activityHelp[mode]}`)}<section id="practice-panel" class="practice-single" aria-labelledby="practice-title">${review ? renderDaily() : renderMode(lesson, p)}</section>
-        ${review ? '' : `<div class="actions lesson-navigation">${position ? button('previous-lesson', '← Leçon précédente', 'secondary-btn') : ''}${position < lessons.length - 1 ? button('next-lesson', 'Leçon suivante →', 'secondary-btn') : ''}</div>`}
-        <section class="progress-tools"><h2 id="notebook-title" tabindex="-1">Mon carnet</h2>${englishNote("Your notebook: known cards are self-ratings. Exercises and quizzes are checked automatically. Complete a lesson by marking all its cards known, passing its exercises and scoring at least 80% on the latest quiz. Progress is stored only in this browser. Exporter downloads a backup; Importer restores one; Réinitialiser clears your progress after confirmation.")}<p>Les cartes « connues » sont ton auto-évaluation. Les exercices et les quiz sont corrigés automatiquement. Une leçon est validée avec toutes ses cartes connues, ses exercices réussis et au moins 80 % au dernier quiz.</p>
-          <details><summary>Mes résultats de quiz</summary>${renderHistory()}</details>
-          <p id="storage-note">${storageFailed ? 'La sauvegarde est indisponible. Ton travail reste en mémoire pendant cette visite : exporte-le avant de fermer la page.' : 'Tes progrès sont enregistrés uniquement dans ce navigateur. Exporte une sauvegarde pour les garder ou les transférer.'}</p>
-          <div class="actions">${button('export-progress', 'Exporter', 'secondary-btn')}${button('import-progress', 'Importer', 'secondary-btn')}${button('reset-progress', 'Réinitialiser', 'secondary-btn danger')}</div><input type="file" id="import-file" accept="application/json,.json" hidden><p id="data-message" role="status">${h(message)}</p>
-        </section><footer><span>AF pratique · A1.1</span><span>Activités originales · Sans audio</span></footer>
-      </main></div>`
-  filterLessons()
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">AF</span><strong>pratique</strong><small>A1.1 · Les bases</small></div>
+        <nav class="side-nav" aria-label="Sections">${navItems.map(([id, label]) => `<button id="nav-${id}" data-view="${id}" ${view === id ? 'aria-current="page"' : ''}>${label}</button>`).join('')}</nav>
+        <div class="sidebar-foot">Un peu chaque jour.<br>Aucun compte, aucun envoi.</div>
+      </aside>
+      <main class="main">
+        <header class="topbar"><span class="breadcrumb">${view === 'lesson' ? `Leçons / ${h(lesson.title)}` : 'A1.1 · Les bases'}</span>
+          <div class="topbar-end"><span class="known-label">${known} / ${total} cartes connues</span>${button('english-toggle', englishHelp ? 'English help: on' : 'English help', 'english-toggle', `lang="en" aria-pressed="${englishHelp}"`)}</div>
+        </header>
+        ${({ today: renderToday, lessons: renderLessons, lesson: renderLesson, carnet: renderCarnet })[view](known, total)}
+      </main>
+    </div>`
+  if (view === 'lessons') filterLessons()
   if (previousFocus) document.getElementById(previousFocus)?.focus({ preventScroll: true })
 }
 
+function renderToday(known, total) {
+  const next = nextActivity(progress)
+  const lesson = lessons.find(l => l.id === next.lessonId)
+  const latest = lessons.flatMap(l => progress.progress[l.id].quizHistory).sort((a, b) => b.date.localeCompare(a.date))[0]
+  const stats = [[`${Math.round(known / total * 100)}%`, 'du vocabulaire connu'], [lessons.length, 'leçons disponibles'], [latest ? `${latest.score}/${latest.total}` : '—', 'dernier quiz']]
+  return `<section class="page page-today">
+    <div class="today-head"><span class="kicker kicker-blue">${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span><h1 id="page-title" tabindex="-1">Bonjour.</h1><p class="lead">Une seule chose à la fois. Comprendre, pratiquer, puis revenir.</p>
+      ${englishNote('Aujourd’hui = today; Leçons = lessons; Mon carnet = your notebook and backups. Continuer resumes where you left off; Choisir une leçon opens the lesson list.')}</div>
+    <div class="panel next-step"><span class="kicker">Ton prochain pas</span>
+      <div class="stack-6"><strong class="next-title">${h(lesson.title)}</strong><span class="meta-15">${activityLabel(next.mode)} · ${mastery(lesson, progress.progress[lesson.id]).known} / ${lesson.cards.length} cartes connues</span></div>
+      <div class="actions">${button('continue', 'Continuer →')}${button('choose-lesson', 'Choisir une leçon', 'btn btn-outline')}</div>
+    </div>
+    <div class="stats">${stats.map(([value, label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join('')}</div>
+  </section>`
+}
+
+function renderLessons() {
+  return `<section class="page page-lessons"><h1 id="page-title" tabindex="-1">Leçons</h1>
+    ${englishNote('Search by French or English title. Every lesson stays open; the suggested order starts with the alphabet.')}
+    <label class="search"><span class="kicker">Rechercher${englishHelp ? ' <span lang="en">/ Find a lesson</span>' : ''}</span><input type="search" id="lesson-search" value="${h(lessonSearch)}" placeholder="Se présenter, en classe, ma ville…" aria-describedby="lesson-search-status"></label>
+    <div class="lesson-list">${lessons.map((l, index) => `<button id="lesson-${l.id}" class="lesson-row" data-lesson="${l.id}" ${l.id === progress.lessonId ? 'aria-current="true"' : ''}><span class="lesson-index">${String(index + 1).padStart(2, '0')}</span><span class="lesson-info"><strong>${h(l.title)}</strong><span>${h(l.subtitle)}</span></span><span class="lesson-count">${mastery(l, progress.progress[l.id]).known} / ${l.cards.length} cartes</span></button>`).join('')}</div>
+    <p id="lesson-search-status" class="status" role="status"></p>
+  </section>`
+}
+
 function filterLessons() {
-  const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   let count = 0
-  for (const card of app.querySelectorAll('[data-lesson]')) {
-    const lesson = lessons.find(l => l.id === card.dataset.lesson)
-    card.hidden = !normalize(`${lesson.title} ${lesson.category} ${english[lesson.id].title}`).includes(normalize(lessonSearch.trim()))
-    if (!card.hidden) count++
+  for (const row of app.querySelectorAll('[data-lesson]')) {
+    const lesson = lessons.find(l => l.id === row.dataset.lesson)
+    row.hidden = !normalize(`${lesson.title} ${lesson.subtitle} ${lesson.category} ${english[lesson.id].title}`).includes(normalize(lessonSearch.trim()))
+    if (!row.hidden) count++
   }
   const status = document.getElementById('lesson-search-status')
-  if (status) status.textContent = count ? `${count} leçon${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}` : 'Aucune leçon trouvée. Essaie un autre mot ou une autre catégorie.'
+  if (status) status.textContent = count ? `${count} leçon${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}.` : 'Aucune leçon trouvée. Essaie un autre mot.'
 }
 
-function renderMode(lesson, p) {
-  if (mode === 'grammar') return `<article class="study-panel grammar-panel"><span class="section-label">Comprendre avant de pratiquer</span><h3>À la fin de cette leçon</h3><ul>${lesson.objectives.map(text => `<li>${h(text)}</li>`).join('')}</ul><p class="study-note">Parcours : lis les explications, observe la scène, puis fais les exercices avant le quiz.</p><nav class="lesson-contents" aria-label="Dans cette leçon"><strong>Dans cette leçon</strong>${lesson.sections.map(([title], index) => `<a href="#section-${index}">${index + 1}. ${h(title)}</a>`).join('')}<a href="#lesson-scene">En situation</a></nav>${lesson.sections.map(([title, explanation, examples], index) => `<section class="teaching-section" id="section-${index}" tabindex="-1"><h3>${h(title)}</h3><p>${h(explanation)}</p>${englishNote(english[lesson.id].sections[index])}<div class="example-list">${examples.map(e => `<strong>${h(e)}</strong>`).join('')}</div></section>`).join('')}<section class="reading" id="lesson-scene" tabindex="-1"><h3>En situation</h3>${englishNote(`Scene summary: ${english[lesson.id].reading}`)}${lesson.dialogue.map(line => `<p>${h(line)}</p>`).join('')}<p class="study-note">Repère les expressions de la leçon. Le quiz contient une question sur cette scène.</p></section>${button('learn-exercises', 'Passer aux exercices →')}</article>`
-  if (mode === 'cards') return renderCard(lesson, p.cardIndex, false)
-  if (mode === 'exercises') return `<article class="study-panel"><span class="section-label">Pratique guidée · Correction automatique</span><h3>Construire tes propres réponses</h3><p>Complète, remets en ordre et transforme. Les majuscules et la ponctuation finale sont tolérées ; les accents comptent. Pour un exercice de ponctuation, le signe demandé est obligatoire.</p>${lesson.exercises.map((e, i) => {
-    const attempt = p.exercises[e.id] || { answer: '', checked: false }
-    return `<section class="exercise"><label for="answer-${i}"><strong>${i + 1}. ${h(e.prompt)}</strong></label>${englishNote(exerciseHelp.get(e).prompt)}<input id="answer-${i}" data-exercise="${e.id}" value="${h(attempt.answer)}" autocomplete="off" maxlength="1000" aria-describedby="feedback-${i}">${button(`check-${i}`, 'Vérifier', 'secondary-btn', `data-check="${i}"`)}<div id="feedback-${i}" ${attempt.checked ? 'class="exercise-feedback"' : ''}>${attempt.checked ? exerciseFeedback(e, attempt.answer) : ''}</div></section>`
-  }).join('')}</article>`
-  if (mode === 'quiz') return renderQuiz(lesson, p)
-  if (mode === 'writing') return `<article class="study-panel writing-panel"><span class="section-label">Production écrite · Auto-évaluation</span><h3>${h(lesson.writing.prompt)}</h3>${englishNote(english[lesson.id].writing)}<p>Prépare tes idées avec les exemples, puis écris sans les recopier. Le texte libre n’est pas noté automatiquement.</p><label for="writing-answer">Ton texte</label><textarea id="writing-answer" maxlength="20000" placeholder="Écris ta réponse ici…">${h(p.writingAnswer)}</textarea><p class="draft-note">Brouillon sauvegardé à chaque modification, si le stockage est disponible.</p>${button('check-writing', writingFeedback ? 'Masquer les repères' : 'Relire mon texte', 'primary-btn', `aria-expanded="${writingFeedback}"`)}${writingFeedback ? `<div class="rubric"><h3>Repères de relecture</h3>${englishNote("Self-check: answer every part of the task, use the lesson structures, and check agreement, accents and punctuation. The model is one possible answer, not a correction of your writing.")}<p id="writing-hints">${h(writingHints(p.writingAnswer))}</p><p>À vérifier toi-même :</p>${lesson.writing.rubric.map((text, i) => `<label class="rubric-item"><input id="rubric-${i}" type="checkbox" data-rubric="${i}" ${p.rubric.includes(i) ? 'checked' : ''}>${h(text)}</label>`).join('')}<div class="model-answer"><small>Une réponse possible, pas une correction de ton texte</small>${h(lesson.writing.model)}</div><p>Compare les structures, puis améliore ton brouillon. Plusieurs réponses sont possibles.</p></div>` : ''}${lesson.task ? `<section class="teaching-section"><h3>${h(lesson.task.title)}</h3>${englishNote(english[lesson.id].task)}<p>${h(lesson.task.prompt)}</p><label for="task-answer">Mon projet</label><textarea id="task-answer" maxlength="20000">${h(p.taskAnswer)}</textarea><p>Repères pour relire ton projet :</p><ul>${lesson.task.rubric.map(text => `<li>${h(text)}</li>`).join('')}</ul></section>` : ''}</article>`
-  return `<article class="study-panel"><span class="section-label">Production orale · Sans enregistrement</span><h3>Préparer, parler, recommencer</h3><p>${h(lesson.speaking)}</p>${englishNote(english[lesson.id].speaking)}<ol><li>Prépare trois mots utiles sans écrire tout le dialogue.</li><li>Parle à voix haute pendant une minute, seul ou avec un partenaire.</li><li>Recommence avec un autre nom, un autre lieu ou un autre horaire.</li></ol><h3>Pour aller plus loin</h3><p>${h(lesson.challenge)}</p><p class="study-note">Auto-évaluation : ai-je été compris ? Ai-je posé une question ? Ai-je utilisé les expressions étudiées ?</p></article>`
+function renderLesson() {
+  const lesson = current(), p = record(), activity = activityOf(p.mode)
+  const body = ({ learn: renderLearn, cards: renderCards, quiz: p.mode === 'quiz' ? renderQuiz : renderExercises, write: renderWriting })[activity](lesson, p)
+  return `<section class="page page-lesson">
+    <div class="stack-8"><span class="kicker kicker-blue">Leçon ${lessons.indexOf(lesson) + 1} / ${lessons.length}</span><h1 id="page-title" tabindex="-1">${h(lesson.title)}</h1></div>
+    <nav class="tabs" aria-label="Activités">${activities.map(([id, label]) => `<button id="tab-${id}" data-activity="${id}" aria-pressed="${activity === id}" aria-controls="activity-panel">${label}</button>`).join('')}</nav>
+    <div id="activity-panel" class="activity">${englishNote(activityHelp[p.mode === 'writing' ? 'writing' : p.mode] || activityHelp.grammar)}${body}</div>
+  </section>`
 }
 
-function exerciseFeedback(exercise, answer) {
-  return `${englishNote(isCorrect(exercise, answer) ? 'Correct!' : `Not quite. Expected French answer: ${exercise.answers.join(' / ')}. Compare it with your answer, including accents and agreement.`)}${englishRules(exerciseHelp.get(exercise).lessonId)}<strong>${isCorrect(exercise, answer) ? 'Correct !' : 'À retravailler.'}</strong><p>${h(exercise.explanation)}</p>${isCorrect(exercise, answer) ? '' : `<p>Réponse attendue : ${exercise.answers.map(h).join(' / ')}</p>`}`
+function renderLearn(lesson) {
+  return `<article class="stack-24">
+    ${lesson.sections.map(([title, explanation, examples], index) => `<section class="teaching-section stack-24"><div class="stack-8"><h2>${h(title)}</h2><p class="body-text">${h(explanation)}</p>${englishNote(english[lesson.id].sections[index])}</div><div class="rule-list">${examples.map(e => `<strong>${h(e)}</strong>`).join('')}</div></section>`).join('')}
+    <section class="reading stack-8"><h2>En situation</h2>${englishNote(`Scene summary: ${english[lesson.id].reading}`)}<div class="rule-list dialogue">${lesson.dialogue.map(line => `<p>${h(line)}</p>`).join('')}</div><p class="note">${h(lesson.grammar.note)}</p></section>
+    <div>${button('learn-cards', 'Passer aux cartes →')}</div>
+  </article>`
 }
-function writingHints(text) {
-  if (!text.trim()) return 'Ton brouillon est vide. Commence par une phrase qui répond à la consigne.'
-  const words = text.trim().split(/\s+/).length
-  const notes = [`${words} mots. Ce décompte ne mesure pas la qualité du texte.`]
-  if (!/[.!?]\s*$/.test(text.trim())) notes.push('Pense à la ponctuation finale.')
-  if (/\bje suis\s+(?:\d+|vingt|trente|dix|douze)\s+ans/i.test(text)) notes.push('Pour l’âge, utilise « j’ai … ans ».')
-  if (/\bje aime\b/i.test(text)) notes.push('Devant aime, je devient j’ : j’aime.')
-  if (/\bne est\b/i.test(text)) notes.push('Devant est, ne devient n’ : n’est.')
-  notes.push('Ces repères simples ne vérifient pas toute la grammaire ni le respect de la consigne.')
-  return notes.join(' ')
+
+function renderCards(lesson, p) {
+  const index = p.cardIndex, card = lesson.cards[index], rating = p.ratings[index]?.status
+  const hint = card.prompt ? (card.tag === 'Nom de la lettre' ? 'Say the French name of this letter, then flip to check.' : 'Spell the name in order, including any accents, then flip to check.') : 'Recall the meaning, then flip to check. Rate the card only after seeing the answer.'
+  return `<article class="stack-20">
+    <span class="meta">${rating === 'known' ? 'Carte connue' : rating === 'again' ? 'À revoir' : 'Pas encore évaluée'}</span>
+    <button id="flashcard" class="flashcard" aria-pressed="${flipped}" aria-label="${flipped ? 'Revoir le recto' : 'Révéler la réponse'}"><small>${h(flipped ? card.front : card.tag)}</small><strong${flipped && !card.prompt ? ' lang="en"' : ''}>${h(flipped ? card.back : card.front)}</strong><em>${h(flipped ? card.example : card.prompt || 'Essaie de retrouver le sens avant de retourner la carte.')}</em><span class="flip-hint">${flipped ? 'Retourner au recto' : 'Toucher pour voir la réponse'} ↻</span></button>
+    ${englishNote(flipped ? `${card.exampleEn}${card.note ? ` ${card.note}` : ''}` : hint)}
+    ${flipped ? `<div class="actions">${button('rate-again', 'À revoir', 'btn btn-outline')}${button('rate-known', 'Je connais', 'btn btn-blue')}</div>` : ''}
+    <div class="card-nav">${button('previous-card', '←', 'arrow', 'aria-label="Carte précédente"')}${button('next-card', '→', 'arrow arrow-dark', 'aria-label="Carte suivante"')}<span class="meta">${index + 1} / ${lesson.cards.length}</span></div>
+  </article>`
 }
-function renderCard(lesson, index, daily) {
-  const card = lesson.cards[index]
-  const p = progress.progress[lesson.id]
-  const rating = p.ratings[index]?.status
-  return `<div class="flashcard-wrap"><p class="tiny-note">${daily ? h(lesson.title) : `${p.reviewed.length} / ${lesson.cards.length} cartes vues`} · ${rating === 'known' ? 'Connue' : rating === 'again' ? 'À revoir' : 'Pas encore évaluée'}</p><button class="flashcard ${flipped ? 'is-flipped' : ''}" id="flashcard" aria-label="${flipped ? 'Revoir le recto' : 'Révéler la réponse'}" aria-pressed="${flipped}"><span class="flashcard-face"><small>${flipped ? h(card.front) : h(card.tag)}</small><strong${flipped && !card.prompt ? ' lang="en"' : ''}>${h(flipped ? card.back : card.front)}</strong><em>${h(flipped ? card.example : card.prompt || 'Essaie de retrouver le sens avant de retourner la carte.')}</em><span class="flip-hint">${flipped ? 'Retourner au recto' : 'Toucher pour voir la réponse'} ↻</span></span></button>${flipped ? englishNote(`${card.exampleEn}${card.note ? ` ${card.note}` : ''}`) : englishNote(card.prompt ? (card.tag === 'Nom de la lettre' ? 'Say the French name of this letter, then flip to check.' : 'Spell the name in order, including any accents, then flip to check.') : 'Recall the meaning, then flip to check. Rate the card only after seeing the answer.')}${flipped ? `<div class="actions rating-actions">${button('rate-again', 'À revoir', 'secondary-btn')}${button('rate-known', 'Je connais', 'primary-btn')}</div><p class="study-note">À revoir : revient demain. Je connais : revient dans trois jours. Ce choix est ton auto-évaluation.</p>` : ''}${daily ? '' : `<div class="card-controls">${button('previous-card', '←', 'round-btn', 'aria-label="Carte précédente"')}<span>${index + 1} / ${lesson.cards.length}</span>${button('next-card', '→', 'round-btn dark', 'aria-label="Carte suivante"')}</div>`}</div>`
+
+function quizSteps(lesson, p) {
+  const done = mastery(lesson, p).exercises
+  return `<div class="steps">${button('step-exercises', `1. Exercices · ${done} / ${lesson.exercises.length}`, 'step', `aria-pressed="${p.mode === 'exercises'}"`)}${button('step-quiz', `2. Quiz · ${lesson.quiz.length} questions`, 'step', `aria-pressed="${p.mode === 'quiz'}"`)}</div>`
 }
-function questionHtml(question, selected, prefix) {
-  return `<h3>${h(question.question)}</h3>${englishNote(questionHelp.get(question).prompt)}<div class="options">${question.options.map((option, i) => `<button id="${prefix}-${i}" class="option ${selected !== null && option === question.answer ? 'correct' : ''}" data-answer="${i}" ${selected !== null ? 'disabled' : ''}>${h(option)}</button>`).join('')}</div>${selected !== null ? `<div class="quiz-result ${selected === question.answer ? 'good' : 'try-again'}"><strong>${selected === question.answer ? 'Correct !' : `Réponse attendue : ${h(question.answer)}`}</strong><p>${h(question.explanation)}</p>${englishNote(selected === question.answer ? 'Correct! Read the explanation or review the English rules below.' : `Expected answer: ${question.answer}. Review the rules below to understand your mistake.`)}${englishRules(questionHelp.get(question).lessonId)}</div>` : ''}`
+
+function renderExercises(lesson, p) {
+  const exercise = lesson.exercises[exerciseIndex]
+  const attempt = p.exercises[exercise.id] || { answer: '', checked: false }
+  const correct = attempt.checked && isCorrect(exercise, attempt.answer)
+  const last = exerciseIndex === lesson.exercises.length - 1
+  return `<article class="stack-20">${quizSteps(lesson, p)}
+    <span class="meta">Exercice ${exerciseIndex + 1} / ${lesson.exercises.length} · correction automatique</span>
+    <form id="exercise-form" class="stack-18"><label for="exercise-answer"><h2 class="question">${h(exercise.prompt)}</h2></label>${englishNote(english[lesson.id].exercises[exerciseIndex])}
+      <input id="exercise-answer" class="text-input" data-exercise="${exercise.id}" value="${h(attempt.answer)}" autocomplete="off" maxlength="1000" aria-describedby="exercise-feedback">
+      <div id="exercise-feedback">${attempt.checked ? `<div class="feedback"><strong>${correct ? 'Correct !' : 'À retravailler.'}</strong><p>${h(exercise.explanation)}</p>${correct ? '' : `<p>Réponse attendue : ${exercise.answers.map(h).join(' / ')}</p>`}${englishNote(correct ? 'Correct!' : `Not quite. Expected French answer: ${exercise.answers.join(' / ')}. Compare it with your answer, including accents and agreement.`)}</div>` : ''}</div>
+      <div class="actions">${attempt.checked ? button(last ? 'exercises-done' : 'next-exercise', last ? 'Passer au quiz →' : 'Exercice suivant →', 'btn btn-primary', 'type="button"') : button('check-exercise', 'Vérifier', 'btn btn-primary', 'type="submit"')}</div>
+    </form>
+    <div class="card-nav">${button('previous-exercise', '←', 'arrow', 'aria-label="Exercice précédent"')}${button('following-exercise', '→', 'arrow arrow-dark', 'aria-label="Exercice suivant"')}<span class="meta">${exerciseIndex + 1} / ${lesson.exercises.length}</span></div>
+  </article>`
 }
+
 function renderQuiz(lesson, p) {
   const a = p.quizAttempt || { index: 0, answers: [] }
   const question = lesson.quiz[a.index]
   const score = a.answers.filter((answer, i) => answer === lesson.quiz[i].answer).length
-  if (!question) return `<article class="study-panel quiz-complete"><span class="section-label">Quiz terminé</span><h3>${score} / ${lesson.quiz.length}</h3>${englishNote(`Quiz complete: ${score} out of ${lesson.quiz.length}. Your result is saved. Missed questions are added to review; Recommencer starts a new attempt.`)}<p>${score / lesson.quiz.length >= 0.8 ? 'Objectif du quiz atteint.' : 'Reviens aux explications, puis réessaie.'} Les erreurs sont ajoutées à tes révisions.</p><ol>${a.answers.map((answer, i) => `<li>${h(lesson.quiz[i].question)}<br>Ta réponse : ${h(answer)}. ${answer === lesson.quiz[i].answer ? 'Correct.' : `Réponse attendue : ${h(lesson.quiz[i].answer)}.`}</li>`).join('')}</ol>${button('restart-quiz', 'Recommencer')}</article>`
-  const selected = a.answers[a.index] ?? null
-  return `<article class="study-panel quiz-panel"><div class="quiz-top"><span>Quiz · Correction automatique</span><span>${a.index + 1} / ${lesson.quiz.length}</span></div>${questionHtml(question, selected, 'quiz-answer')}${selected !== null ? button('next-quiz', a.index === lesson.quiz.length - 1 ? 'Terminer' : 'Question suivante →') : ''}</article>`
+  if (!question) return `<article class="stack-20">${quizSteps(lesson, p)}<span class="meta">Correction automatique</span>
+    <div id="quiz-complete" class="panel stack-16"><span class="kicker">Quiz terminé</span><strong class="score">${score} / ${lesson.quiz.length}</strong><p class="verdict">${score / lesson.quiz.length >= 0.8 ? 'Objectif du quiz atteint. Les erreurs restent à revoir.' : 'Reviens aux explications, puis réessaie.'}</p>${englishNote(`Quiz complete: ${score} out of ${lesson.quiz.length}. Your result is saved. Recommencer starts a new attempt.`)}<div>${button('restart-quiz', 'Recommencer', 'btn btn-outline')}</div></div>
+  </article>`
+  const picked = a.answers[a.index] ?? null
+  const correct = picked === question.answer
+  return `<article class="stack-20">${quizSteps(lesson, p)}
+    <span class="meta">Question ${a.index + 1} / ${lesson.quiz.length} · correction automatique</span>
+    <div class="stack-18"><h2 class="question">${h(question.question)}</h2>${englishNote(english[lesson.id].questions[a.index])}
+      <div class="options">${question.options.map((option, i) => `<button id="quiz-answer-${i}" class="option${picked !== null && option === question.answer ? ' correct' : ''}${picked !== null && option === picked && !correct ? ' wrong' : ''}" data-answer="${i}" ${picked !== null ? 'disabled' : ''}>${h(option)}</button>`).join('')}</div>
+      ${picked !== null ? `<div class="feedback"><strong>${correct ? 'Correct !' : `Réponse attendue : ${h(question.answer)}`}</strong><p>${h(question.explanation)}</p>${englishNote(correct ? 'Correct. Keep going.' : `Expected answer: ${question.answer}.`)}<div>${button('next-quiz', a.index === lesson.quiz.length - 1 ? 'Terminer' : 'Question suivante →')}</div></div>` : ''}
+    </div>
+  </article>`
 }
-function renderHistory() {
-  const entries = lessons.flatMap(lesson => progress.progress[lesson.id].quizHistory.map(result => ({ ...result, title: lesson.title }))).sort((a, b) => b.date.localeCompare(a.date))
-  return entries.length ? `<ul class="history">${entries.map(e => `<li>${h(e.title)} — ${e.score} / ${e.total} <time>${new Date(e.date).toLocaleString('fr-FR')}</time></li>`).join('')}</ul>` : '<p>Aucun quiz terminé pour le moment.</p>'
+
+function renderWriting(lesson, p) {
+  return `<article class="stack-20">
+    <div class="stack-8"><span class="kicker">Production écrite · non notée</span><h2 class="prompt">${h(lesson.writing.prompt)}</h2>${englishNote(english[lesson.id].writing)}</div>
+    <label class="sr-only" for="writing-answer">Ton texte</label><textarea id="writing-answer" class="text-area" maxlength="20000" placeholder="Écris ta réponse ici…">${h(p.writingAnswer)}</textarea>
+    <span id="storage-draft" class="meta">${storageFailed ? 'Sauvegarde indisponible : exporte ton travail avant de fermer cette page.' : 'Brouillon enregistré dans ce navigateur. Le texte libre n’est pas noté automatiquement.'}</span>
+    <div>${button('toggle-model', showModel ? 'Masquer la réponse possible' : 'Voir une réponse possible', 'btn btn-outline', `aria-expanded="${showModel}"`)}</div>
+    ${showModel ? `<div class="model stack-8"><small class="kicker">Une réponse possible, pas une correction</small><strong>${h(lesson.writing.model)}</strong>
+      <fieldset class="rubric"><legend class="kicker">À vérifier toi-même</legend>${lesson.writing.rubric.map((text, i) => `<label><input id="rubric-${i}" type="checkbox" data-rubric="${i}" ${p.rubric.includes(i) ? 'checked' : ''}> ${h(text)}</label>`).join('')}</fieldset></div>` : ''}
+    ${lesson.task ? `<section class="task stack-8"><span class="kicker">Projet</span><h2 class="prompt">${h(lesson.task.title)}</h2><p class="body-text">${h(lesson.task.prompt)}</p>${englishNote(english[lesson.id].task)}
+      <label class="sr-only" for="task-answer">Mon projet</label><textarea id="task-answer" class="text-area" maxlength="20000" placeholder="Écris ton projet ici…">${h(p.taskAnswer)}</textarea>
+      <ul class="note">${lesson.task.rubric.map(text => `<li>${h(text)}</li>`).join('')}</ul></section>` : ''}
+  </article>`
 }
-function renderDaily() {
-  const session = progress.daily
-  const item = session.items[session.index]
-  if (!item) return `<article class="study-panel"><h3>${session.items.length ? 'Révision terminée !' : 'Rien à revoir aujourd’hui.'}</h3><p>${session.items.length ? `${session.items.length} éléments travaillés. Les cartes restent planifiées selon tes choix ; les erreurs de quiz restent à revoir jusqu’à une bonne réponse.` : 'Tes cartes évaluées ne sont pas encore dues. Tu peux continuer une leçon.'}</p>${button('daily-exit', 'Revenir à ma leçon')}</article>`
-  const lesson = lessons.find(l => l.id === item.lessonId)
-  return `<p class="daily-counter">${session.index + 1} / ${session.items.length} · ${h(lesson.title)}</p>${item.type === 'card' ? renderCard(lesson, item.index, true) : `<article class="study-panel quiz-panel">${questionHtml(lesson.quiz[item.index], reviewAnswer, 'daily-answer')}${reviewAnswer !== null ? button('daily-next', 'Continuer la révision →') : ''}</article>`}${button('daily-exit', 'Reprendre plus tard', 'secondary-btn')}`
+
+function renderCarnet() {
+  return `<section class="page page-carnet"><h1 id="page-title" tabindex="-1">Mon carnet</h1>
+    <p class="intro">Les cartes « connues » sont ton auto-évaluation. Tes progrès restent dans ce navigateur. Exporte une sauvegarde pour les garder.</p>
+    ${englishNote('Known cards are your own ratings. Progress is stored only in this browser. Exporter downloads a backup; Importer restores one; Réinitialiser clears your progress after confirmation.')}
+    <div class="carnet-list">${lessons.map(l => `<div class="carnet-row"><span>${h(l.title)}</span><span>${mastery(l, progress.progress[l.id]).known} / ${l.cards.length} cartes connues</span></div>`).join('')}</div>
+    <p id="storage-note" class="meta">${storageFailed ? 'La sauvegarde est indisponible. Ton travail reste en mémoire pendant cette visite : exporte-le avant de fermer la page.' : 'Tes progrès sont enregistrés uniquement dans ce navigateur.'}</p>
+    <div class="actions">${button('export-progress', 'Exporter', 'btn btn-outline')}${button('import-progress', 'Importer', 'btn btn-outline')}${button('reset-progress', 'Réinitialiser', 'btn btn-danger')}</div>
+    <input type="file" id="import-file" accept="application/json,.json" hidden><p id="data-message" class="meta" role="status">${h(message)}</p>
+  </section>`
+}
+
+function setView(next) {
+  view = next; flipped = false
+  render('page-title'); window.scrollTo(0, 0)
 }
 
 app.addEventListener('input', event => {
-  if (event.target.id === 'lesson-search') { lessonSearch = event.target.value; filterLessons(); return }
-  if (event.target.id === 'task-answer') { record().taskAnswer = event.target.value; save() }
-  if (event.target.id === 'writing-answer') { record().writingAnswer = event.target.value; save(); const hints = document.querySelector('#writing-hints'); if (hints) hints.textContent = writingHints(event.target.value) }
-  if (event.target.dataset.exercise) { record().exercises[event.target.dataset.exercise] = { answer: event.target.value, checked: false }; const feedback = document.getElementById(event.target.getAttribute('aria-describedby')); if (feedback) { feedback.textContent = ''; feedback.className = '' }; save() }
-  const note = document.querySelector('#storage-note')
+  const { target } = event
+  if (target.id === 'lesson-search') { lessonSearch = target.value; filterLessons(); return }
+  if (target.id === 'writing-answer') { record().writingAnswer = target.value; save() }
+  if (target.id === 'task-answer') { record().taskAnswer = target.value; save() }
+  if (target.dataset.exercise) {
+    const wasChecked = record().exercises[target.dataset.exercise]?.checked
+    record().exercises[target.dataset.exercise] = { answer: target.value, checked: false }
+    save()
+    if (wasChecked) { render('exercise-answer'); const input = document.getElementById('exercise-answer'); input.setSelectionRange(input.value.length, input.value.length) }
+  }
+  const note = document.querySelector('#storage-draft')
   if (storageFailed && note) note.textContent = 'Sauvegarde indisponible : exporte ton travail avant de fermer cette page.'
 })
 app.addEventListener('change', event => {
@@ -166,72 +232,66 @@ app.addEventListener('change', event => {
   }
   if (event.target.id === 'import-file') importFile(event.target.files[0])
 })
+app.addEventListener('submit', event => {
+  if (event.target.id !== 'exercise-form') return
+  event.preventDefault()
+  const exercise = current().exercises[exerciseIndex], p = record()
+  p.exercises[exercise.id] = { answer: document.getElementById('exercise-answer').value, checked: true }
+  save()
+  const correct = isCorrect(exercise, p.exercises[exercise.id].answer)
+  announce(`${correct ? 'Correct.' : 'À retravailler.'} ${exercise.explanation}`)
+  render(exerciseIndex === current().exercises.length - 1 ? 'exercises-done' : 'next-exercise')
+})
 app.addEventListener('click', event => {
   const target = event.target.closest('button')
-  if (!target || target.disabled) return
+  if (!target || target.disabled || target.id === 'check-exercise') return
   const { id, dataset } = target
   const lesson = current(), p = record()
   let focus = id
   if (id === 'english-toggle') {
     englishHelp = !englishHelp
     try { storage?.setItem('af-pratique-english-help', String(englishHelp)) } catch {}
-    render(id); return
-  }
-  if (dataset.lesson) { changeLesson(dataset.lesson); return }
-  if (dataset.category) category = dataset.category
-  else if (dataset.mode) { mode = dataset.mode; p.mode = mode; flipped = false; save() }
-  else if (dataset.check !== undefined) {
-    const exercise = lesson.exercises[Number(dataset.check)]
-    p.exercises[exercise.id] ||= { answer: '' }
-    p.exercises[exercise.id].checked = true
-    save(); announce(`${isCorrect(exercise, p.exercises[exercise.id].answer) ? 'Correct.' : 'À retravailler.'} ${exercise.explanation}`)
-  } else if (dataset.answer !== undefined) {
-    if (review) {
-      if (reviewAnswer !== null) return
-      const item = progress.daily.items[progress.daily.index]
-      const l = lessons.find(l => l.id === item.lessonId), q = l.quiz[item.index]
-      reviewAnswer = q.options[Number(dataset.answer)]
-      updateMistake(progress.progress[l.id], item.index, reviewAnswer === q.answer)
-      announce(`${reviewAnswer === q.answer ? 'Correct.' : `Réponse attendue : ${q.answer}.`} ${q.explanation}`)
-      focus = 'daily-next'
-    } else {
-      const q = lesson.quiz[p.quizAttempt?.index || 0]
-      const answer = q.options[Number(dataset.answer)]
-      answerQuiz(progress, lesson.id, answer)
-      announce(`${answer === q.answer ? 'Correct.' : `Réponse attendue : ${q.answer}.`} ${q.explanation}`)
-      focus = 'next-quiz'
-    }
-    save()
-  } else if (id === 'catalogue-toggle') catalogue = !catalogue
-  else if (id === 'start-review') { const next = nextActivity(progress); changeLesson(next.lessonId, next.mode); return }
-  else if (id === 'daily-start') { dailySession(progress); review = true; reviewAnswer = null; flipped = false; save(); focus = 'practice-title' }
-  else if (id === 'daily-exit') { review = false; flipped = false; reviewAnswer = null; focus = 'practice-title' }
-  else if (id === 'daily-next') { progress.daily.index++; reviewAnswer = null; flipped = false; save(); focus = 'practice-title' }
+  } else if (dataset.view) { setView(dataset.view); return }
+  else if (dataset.lesson) { openLesson(dataset.lesson, 'grammar'); lessonSearch = ''; render('page-title'); window.scrollTo(0, 0); return }
+  else if (id === 'continue') { const next = nextActivity(progress); openLesson(next.lessonId, next.mode); render('page-title'); window.scrollTo(0, 0); return }
+  else if (id === 'choose-lesson') { setView('lessons'); return }
+  else if (dataset.activity) {
+    const modes = { learn: 'grammar', cards: 'cards', write: 'writing' }
+    if (dataset.activity !== activityOf(p.mode)) p.mode = modes[dataset.activity] || (mastery(lesson, p).exercises === lesson.exercises.length ? 'quiz' : 'exercises')
+    flipped = false; showModel = false; save()
+  } else if (id === 'learn-cards') { p.mode = 'cards'; save(); focus = 'tab-cards' }
   else if (id === 'flashcard') {
     flipped = !flipped
-    const item = review ? progress.daily.items[progress.daily.index] : { lessonId: lesson.id, index: p.cardIndex }
-    const data = progress.progress[item.lessonId]
-    if (flipped && !data.reviewed.includes(item.index)) data.reviewed.push(item.index)
-    const card = lessons.find(l => l.id === item.lessonId).cards[item.index]
+    if (flipped && !p.reviewed.includes(p.cardIndex)) p.reviewed.push(p.cardIndex)
+    const card = lesson.cards[p.cardIndex]
     announce(flipped ? `${card.back}. ${card.example}` : card.front); save()
   } else if (id === 'rate-again' || id === 'rate-known') {
-    const item = review ? progress.daily.items[progress.daily.index] : { lessonId: lesson.id, index: p.cardIndex }
-    rateCard(progress, item.lessonId, item.index, id === 'rate-known' ? 'known' : 'again')
-    if (review) progress.daily.index++
-    else p.cardIndex = (p.cardIndex + 1) % lesson.cards.length
-    flipped = false; save(); focus = review ? 'practice-title' : 'flashcard'
+    rateCard(progress, lesson.id, p.cardIndex, id === 'rate-known' ? 'known' : 'again')
+    p.cardIndex = (p.cardIndex + 1) % lesson.cards.length
+    flipped = false; save(); focus = 'flashcard'
     announce(id === 'rate-known' ? 'Carte connue. Prochaine révision dans trois jours.' : 'Carte à revoir demain.')
-  } else if (id === 'previous-card' || id === 'next-card') { p.cardIndex = (p.cardIndex + (id === 'next-card' ? 1 : -1) + lesson.cards.length) % lesson.cards.length; flipped = false; save(); announce(lesson.cards[p.cardIndex].front) }
-  else if (id === 'learn-exercises') { mode = 'exercises'; p.mode = mode; save(); focus = 'mode-exercises' }
-  else if (id === 'next-quiz') { nextQuiz(progress, lesson.id); save(); focus = p.quizAttempt.index === lesson.quiz.length ? 'restart-quiz' : 'quiz-answer-0' }
+  } else if (id === 'previous-card' || id === 'next-card') {
+    p.cardIndex = (p.cardIndex + (id === 'next-card' ? 1 : -1) + lesson.cards.length) % lesson.cards.length
+    flipped = false; save(); announce(lesson.cards[p.cardIndex].front)
+  } else if (id === 'step-exercises' || id === 'step-quiz') { p.mode = id === 'step-quiz' ? 'quiz' : 'exercises'; save() }
+  else if (id === 'next-exercise' || id === 'following-exercise' || id === 'previous-exercise') {
+    exerciseIndex = (exerciseIndex + (id === 'previous-exercise' ? -1 : 1) + lesson.exercises.length) % lesson.exercises.length
+    focus = id === 'next-exercise' ? 'exercise-answer' : id
+  } else if (id === 'exercises-done') { p.mode = 'quiz'; save(); focus = 'quiz-answer-0' }
+  else if (dataset.answer !== undefined) {
+    const question = lesson.quiz[p.quizAttempt?.index || 0]
+    const answer = question.options[Number(dataset.answer)]
+    answerQuiz(progress, lesson.id, answer)
+    announce(`${answer === question.answer ? 'Correct.' : `Réponse attendue : ${question.answer}.`} ${question.explanation}`)
+    save(); focus = 'next-quiz'
+  } else if (id === 'next-quiz') { nextQuiz(progress, lesson.id); save(); focus = p.quizAttempt.index === lesson.quiz.length ? 'restart-quiz' : 'quiz-answer-0' }
   else if (id === 'restart-quiz') { p.quizAttempt = null; save(); focus = 'quiz-answer-0' }
-  else if (id === 'check-writing') writingFeedback = !writingFeedback
-  else if (id === 'previous-lesson' || id === 'next-lesson') { changeLesson(lessons[lessons.indexOf(lesson) + (id === 'next-lesson' ? 1 : -1)].id); return }
+  else if (id === 'toggle-model') showModel = !showModel
   else if (id === 'export-progress') { exportProgress(); return }
   else if (id === 'import-progress') { document.querySelector('#import-file').click(); return }
   else if (id === 'reset-progress') {
     if (!confirm('Effacer tous les progrès de ce navigateur : cartes, textes, exercices et quiz ? Exporte une sauvegarde avant de continuer.')) return
-    progress = freshProgress(); mode = 'grammar'; review = false; flipped = false; writingFeedback = false; save(); message = 'Le carnet a été réinitialisé.'; focus = 'practice-title'
+    progress = freshProgress(); flipped = false; showModel = false; exerciseIndex = 0; save(); message = 'Le carnet a été réinitialisé.'
   } else return
   render(focus)
 })
@@ -252,9 +312,10 @@ async function importFile(file) {
     const drafts = Object.values(candidate.progress).reduce((n, p) => n + Number(Boolean(p.writingAnswer)) + Number(Boolean(p.taskAnswer)), 0)
     const results = Object.values(candidate.progress).reduce((n, p) => n + p.quizHistory.length, 0)
     if (!confirm(`Cette sauvegarde contient ${drafts} brouillon(s) et ${results} résultat(s) de quiz. Remplacer le carnet actuel ?`)) return
-    progress = candidate; mode = record().mode; review = false; flipped = false; writingFeedback = false; save()
+    progress = candidate; flipped = false; showModel = false; exerciseIndex = firstOpenExercise(); save()
     message = 'Sauvegarde importée.'
   } catch (error) { message = `Import impossible. ${error instanceof SyntaxError ? 'Le fichier JSON est invalide.' : error.message}` }
   render('import-progress')
 }
+exerciseIndex = firstOpenExercise()
 render()
